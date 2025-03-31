@@ -103,7 +103,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="container p-4 md:p-6 overflow-auto max-h-[calc(100vh-56px)] md:max-h-screen">
             {children}
           </div>
-        </div>
+        </main>
       </div>
     </SidebarProvider>
   );
