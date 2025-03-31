@@ -1,0 +1,210 @@
+
+import { StatCard } from "@/components/dashboard/StatCard";
+import { TrackerCard } from "@/components/dashboard/TrackerCard";
+import {
+  CreditCard,
+  DollarSign,
+  BarChart3,
+  PiggyBank,
+  Wallet,
+  BellRing,
+  TrendingUp,
+  Calculator,
+  BadgeDollarSign,
+  ArrowDownRight,
+  ArrowUpRight,
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+
+const Dashboard = () => {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">Your financial overview at a glance.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Expenses"
+          value="$2,540.00"
+          description="12% from last month"
+          icon={<ArrowDownRight className="h-5 w-5" />}
+          iconClassName="bg-finance-red/10 text-finance-red"
+        />
+        <StatCard
+          title="Total Income"
+          value="$4,250.00"
+          description="8% from last month"
+          icon={<ArrowUpRight className="h-5 w-5" />}
+          iconClassName="bg-finance-green/10 text-finance-green"
+        />
+        <StatCard
+          title="Savings Rate"
+          value="40.2%"
+          description="5% increase from target"
+          icon={<PiggyBank className="h-5 w-5" />}
+          iconClassName="bg-finance-teal/10 text-finance-teal"
+        />
+        <StatCard
+          title="Net Worth"
+          value="$78,350.00"
+          description="$3,200 increase from last month"
+          icon={<BarChart3 className="h-5 w-5" />}
+          iconClassName="bg-finance-blue/10 text-finance-blue"
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="col-span-2">
+          <CardHeader>
+            <CardTitle>Budget Overview</CardTitle>
+            <CardDescription>Your spending by category this month</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-finance-red"></div>
+                  <span>Housing</span>
+                </div>
+                <div className="font-medium">$1,200 / $1,500</div>
+              </div>
+              <Progress value={80} className="h-2 bg-muted" indicatorClassName="bg-finance-red" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-finance-blue"></div>
+                  <span>Transportation</span>
+                </div>
+                <div className="font-medium">$350 / $400</div>
+              </div>
+              <Progress value={87.5} className="h-2 bg-muted" indicatorClassName="bg-finance-blue" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-finance-green"></div>
+                  <span>Food</span>
+                </div>
+                <div className="font-medium">$420 / $600</div>
+              </div>
+              <Progress value={70} className="h-2 bg-muted" indicatorClassName="bg-finance-green" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-finance-purple"></div>
+                  <span>Entertainment</span>
+                </div>
+                <div className="font-medium">$180 / $250</div>
+              </div>
+              <Progress value={72} className="h-2 bg-muted" indicatorClassName="bg-finance-purple" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Bills</CardTitle>
+            <CardDescription>Bills due in the next 7 days</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Electricity Bill</p>
+                <p className="text-sm text-muted-foreground">Due in 2 days</p>
+              </div>
+              <p className="font-medium">$85.40</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Internet</p>
+                <p className="text-sm text-muted-foreground">Due in 5 days</p>
+              </div>
+              <p className="font-medium">$59.99</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Credit Card</p>
+                <p className="text-sm text-muted-foreground">Due in 7 days</p>
+              </div>
+              <p className="font-medium">$340.25</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <h2 className="text-2xl font-bold tracking-tight">Financial Trackers</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <TrackerCard
+          title="Expense Tracker"
+          description="Track and categorize your spending"
+          icon={<CreditCard className="h-5 w-5" />}
+          path="/expenses"
+          iconClassName="bg-finance-red/10 text-finance-red"
+        />
+        <TrackerCard
+          title="Income Tracker"
+          description="Monitor your various income sources"
+          icon={<DollarSign className="h-5 w-5" />}
+          path="/income"
+          iconClassName="bg-finance-green/10 text-finance-green"
+        />
+        <TrackerCard
+          title="Budget Planner"
+          description="Set and manage your budget goals"
+          icon={<Calculator className="h-5 w-5" />}
+          path="/budget"
+          iconClassName="bg-finance-purple/10 text-finance-purple"
+        />
+        <TrackerCard
+          title="Bill Reminders"
+          description="Stay on top of your bill payments"
+          icon={<BellRing className="h-5 w-5" />}
+          path="/bills"
+          iconClassName="bg-finance-orange/10 text-finance-orange"
+        />
+        <TrackerCard
+          title="Savings Goals"
+          description="Track progress toward your savings goals"
+          icon={<PiggyBank className="h-5 w-5" />}
+          path="/savings"
+          iconClassName="bg-finance-teal/10 text-finance-teal"
+        />
+        <TrackerCard
+          title="Investment Portfolio"
+          description="Monitor your investment performance"
+          icon={<TrendingUp className="h-5 w-5" />}
+          path="/investments"
+          iconClassName="bg-finance-indigo/10 text-finance-indigo"
+        />
+        <TrackerCard
+          title="Debt Management"
+          description="Track and manage your debt payoff"
+          icon={<BadgeDollarSign className="h-5 w-5" />}
+          path="/debt"
+          iconClassName="bg-finance-yellow/10 text-finance-yellow"
+        />
+        <TrackerCard
+          title="Loan Tracker"
+          description="Monitor loan balances and payments"
+          icon={<Wallet className="h-5 w-5" />}
+          path="/loans"
+          iconClassName="bg-finance-gray/10 text-finance-gray"
+        />
+        <TrackerCard
+          title="Reports & Analytics"
+          description="Gain insights into your financial data"
+          icon={<BarChart3 className="h-5 w-5" />}
+          path="/reports"
+          iconClassName="bg-finance-blue/10 text-finance-blue"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
