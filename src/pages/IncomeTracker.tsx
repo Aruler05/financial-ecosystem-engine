@@ -2,8 +2,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, DollarSign } from "lucide-react";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const IncomeTracker = () => {
+  const { currencySymbol } = useCurrency();
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -23,7 +27,9 @@ const IncomeTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$4,250.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={4250.00} />
+              </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-green/10">
                 <DollarSign className="h-5 w-5 text-finance-green" />
               </div>
@@ -38,7 +44,9 @@ const IncomeTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$3,500.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={3500.00} />
+              </div>
               <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
                 Salary
               </div>
@@ -53,7 +61,9 @@ const IncomeTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$750.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={750.00} />
+              </div>
               <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
                 Freelance
               </div>
@@ -73,7 +83,9 @@ const IncomeTracker = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Monthly Salary</CardTitle>
-                <div className="font-medium text-finance-green">$3,500.00</div>
+                <div className="font-medium text-finance-green">
+                  <CurrencyDisplay amount={3500.00} />
+                </div>
               </div>
               <CardDescription>Company XYZ</CardDescription>
             </CardHeader>
@@ -99,7 +111,9 @@ const IncomeTracker = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Freelance Project</CardTitle>
-                <div className="font-medium text-finance-purple">$500.00</div>
+                <div className="font-medium text-finance-purple">
+                  <CurrencyDisplay amount={500.00} />
+                </div>
               </div>
               <CardDescription>Website Development</CardDescription>
             </CardHeader>
@@ -125,7 +139,9 @@ const IncomeTracker = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle>Dividend Income</CardTitle>
-                <div className="font-medium text-finance-blue">$250.00</div>
+                <div className="font-medium text-finance-blue">
+                  <CurrencyDisplay amount={250.00} />
+                </div>
               </div>
               <CardDescription>Stock Investments</CardDescription>
             </CardHeader>

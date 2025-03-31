@@ -1,4 +1,3 @@
-
 import {
   CreditCard,
   DollarSign,
@@ -24,6 +23,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { CurrencySelector } from "@/components/CurrencySelector";
 
 const menuItems = [
   {
@@ -119,6 +119,9 @@ function AppSidebar() {
         <h1 className="ml-2 text-xl font-bold">FinTrack AI</h1>
       </SidebarHeader>
       <SidebarContent>
+        <div className="px-4 py-2">
+          <CurrencySelector />
+        </div>
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.path}>
