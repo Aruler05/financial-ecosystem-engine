@@ -120,7 +120,8 @@ function AppSidebar() {
         <h1 className="ml-2 text-xl font-bold">FinTrack AI</h1>
       </SidebarHeader>
       <SidebarContent>
-        <div className="px-4 py-2">
+        <div className="px-4 py-3 mb-2">
+          <div className="text-sm font-medium text-muted-foreground mb-2">Currency</div>
           <CurrencySelector />
         </div>
         <SidebarMenu>

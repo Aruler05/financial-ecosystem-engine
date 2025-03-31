@@ -18,7 +18,7 @@ export function CurrencyDisplay({ amount, className }: CurrencyDisplayProps) {
   
   return (
     <span className={className}>
-      {currencySymbol}{formattedAmount}
+      <span className="currency-symbol">{currencySymbol}</span>{formattedAmount}
     </span>
   );
 }
