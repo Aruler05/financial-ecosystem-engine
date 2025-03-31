@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 
 const Dashboard = () => {
   return (
@@ -28,14 +29,14 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Expenses"
-          value="$2,540.00"
+          value={<CurrencyDisplay amount={2540.00} />}
           description="12% from last month"
           icon={<ArrowDownRight className="h-5 w-5" />}
           iconClassName="bg-finance-red/10 text-finance-red"
         />
         <StatCard
           title="Total Income"
-          value="$4,250.00"
+          value={<CurrencyDisplay amount={4250.00} />}
           description="8% from last month"
           icon={<ArrowUpRight className="h-5 w-5" />}
           iconClassName="bg-finance-green/10 text-finance-green"
@@ -49,8 +50,8 @@ const Dashboard = () => {
         />
         <StatCard
           title="Net Worth"
-          value="$78,350.00"
-          description="$3,200 increase from last month"
+          value={<CurrencyDisplay amount={78350.00} />}
+          description={<><CurrencyDisplay amount={3200.00} /> increase from last month</>}
           icon={<BarChart3 className="h-5 w-5" />}
           iconClassName="bg-finance-blue/10 text-finance-blue"
         />
@@ -69,7 +70,9 @@ const Dashboard = () => {
                   <div className="h-3 w-3 rounded-full bg-finance-red"></div>
                   <span>Housing</span>
                 </div>
-                <div className="font-medium">$1,200 / $1,500</div>
+                <div className="font-medium">
+                  <CurrencyDisplay amount={1200.00} /> / <CurrencyDisplay amount={1500.00} />
+                </div>
               </div>
               <Progress value={80} className="h-2 bg-muted" indicatorClassName="bg-finance-red" />
             </div>
@@ -79,7 +82,9 @@ const Dashboard = () => {
                   <div className="h-3 w-3 rounded-full bg-finance-blue"></div>
                   <span>Transportation</span>
                 </div>
-                <div className="font-medium">$350 / $400</div>
+                <div className="font-medium">
+                  <CurrencyDisplay amount={350.00} /> / <CurrencyDisplay amount={400.00} />
+                </div>
               </div>
               <Progress value={87.5} className="h-2 bg-muted" indicatorClassName="bg-finance-blue" />
             </div>
@@ -89,7 +94,9 @@ const Dashboard = () => {
                   <div className="h-3 w-3 rounded-full bg-finance-green"></div>
                   <span>Food</span>
                 </div>
-                <div className="font-medium">$420 / $600</div>
+                <div className="font-medium">
+                  <CurrencyDisplay amount={420.00} /> / <CurrencyDisplay amount={600.00} />
+                </div>
               </div>
               <Progress value={70} className="h-2 bg-muted" indicatorClassName="bg-finance-green" />
             </div>
@@ -99,7 +106,9 @@ const Dashboard = () => {
                   <div className="h-3 w-3 rounded-full bg-finance-purple"></div>
                   <span>Entertainment</span>
                 </div>
-                <div className="font-medium">$180 / $250</div>
+                <div className="font-medium">
+                  <CurrencyDisplay amount={180.00} /> / <CurrencyDisplay amount={250.00} />
+                </div>
               </div>
               <Progress value={72} className="h-2 bg-muted" indicatorClassName="bg-finance-purple" />
             </div>
@@ -117,21 +126,21 @@ const Dashboard = () => {
                 <p className="font-medium">Electricity Bill</p>
                 <p className="text-sm text-muted-foreground">Due in 2 days</p>
               </div>
-              <p className="font-medium">$85.40</p>
+              <p className="font-medium"><CurrencyDisplay amount={85.40} /></p>
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Internet</p>
                 <p className="text-sm text-muted-foreground">Due in 5 days</p>
               </div>
-              <p className="font-medium">$59.99</p>
+              <p className="font-medium"><CurrencyDisplay amount={59.99} /></p>
             </div>
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Credit Card</p>
                 <p className="text-sm text-muted-foreground">Due in 7 days</p>
               </div>
-              <p className="font-medium">$340.25</p>
+              <p className="font-medium"><CurrencyDisplay amount={340.25} /></p>
             </div>
           </CardContent>
         </Card>

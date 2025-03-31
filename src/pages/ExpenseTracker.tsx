@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Receipt, Search, Upload, PieChart, ListFilter, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 
 const categories = [
   "Food & Dining",
@@ -305,7 +305,9 @@ const ExpenseTracker = () => {
                   <div key={expense.id} className="grid grid-cols-7 px-4 py-3 text-sm">
                     <div className="col-span-1">{new Date(expense.date).toLocaleDateString()}</div>
                     <div className="col-span-2 font-medium">{expense.merchant}</div>
-                    <div className="col-span-1 font-medium">{formatCurrency(expense.amount)}</div>
+                    <div className="col-span-1 font-medium">
+                      <CurrencyDisplay amount={expense.amount} />
+                    </div>
                     <div className="col-span-1">{expense.category}</div>
                     <div className="col-span-1">{expense.paymentMethod}</div>
                     <div className="col-span-1 truncate">{expense.notes}</div>
@@ -326,7 +328,9 @@ const ExpenseTracker = () => {
               <div className="inline-flex items-center justify-center rounded-full bg-primary/10 p-4">
                 <PieChart className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="mt-2 text-xl font-bold">$2,540.00</h3>
+              <h3 className="mt-2 text-xl font-bold">
+                <CurrencyDisplay amount={2540.00} />
+              </h3>
               <p className="text-sm text-muted-foreground">Total expenses this month</p>
             </div>
             
@@ -336,35 +340,45 @@ const ExpenseTracker = () => {
                   <div className="h-3 w-3 rounded-full bg-finance-red"></div>
                   <span className="text-sm">Food & Dining</span>
                 </div>
-                <span className="text-sm font-medium">$520.00</span>
+                <span className="text-sm font-medium">
+                  <CurrencyDisplay amount={520.00} />
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-finance-blue"></div>
                   <span className="text-sm">Housing</span>
                 </div>
-                <span className="text-sm font-medium">$1,200.00</span>
+                <span className="text-sm font-medium">
+                  <CurrencyDisplay amount={1200.00} />
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-finance-green"></div>
                   <span className="text-sm">Transportation</span>
                 </div>
-                <span className="text-sm font-medium">$350.00</span>
+                <span className="text-sm font-medium">
+                  <CurrencyDisplay amount={350.00} />
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-finance-purple"></div>
                   <span className="text-sm">Entertainment</span>
                 </div>
-                <span className="text-sm font-medium">$180.00</span>
+                <span className="text-sm font-medium">
+                  <CurrencyDisplay amount={180.00} />
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-finance-yellow"></div>
                   <span className="text-sm">Other</span>
                 </div>
-                <span className="text-sm font-medium">$290.00</span>
+                <span className="text-sm font-medium">
+                  <CurrencyDisplay amount={290.00} />
+                </span>
               </div>
             </div>
             
