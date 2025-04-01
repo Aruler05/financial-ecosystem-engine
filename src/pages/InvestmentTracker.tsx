@@ -88,6 +88,8 @@ const mockInvestments = [
 const InvestmentTracker = () => {
   const [investments, setInvestments] = useState(mockInvestments);
   const [showAddInvestment, setShowAddInvestment] = useState(false);
+  const [showEditInvestment, setShowEditInvestment] = useState(false);
+  const [currentInvestment, setCurrentInvestment] = useState(null);
   const [newInvestment, setNewInvestment] = useState({
     name: "",
     symbol: "",
@@ -140,7 +142,81 @@ const InvestmentTracker = () => {
     });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditInvestment = (investment) => {
+    setCurrentInvestment(investment);
+    setNewInvestment({
+      name: investment.name,
+      symbol: investment.symbol,
+      type: investment.type,
+      value: investment.value.toString(),
+      quantity: investment.quantity.toString(),
+      purchasePrice: investment.purchasePrice.toString(),
+      purchaseDate: investment.purchaseDate,
+      sector: investment.sector,
+      change: investment.change.toString()
+    });
+    setShowEditInvestment(true);
+  };
+
+  const handleUpdateInvestment = () => {
+    if (!newInvestment.name || !newInvestment.symbol || !newInvestment.type || !newInvestment.quantity) {
+      toast({
+        title: "Missing information",
+        description: "Please fill out all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updatedInvestment = {
+      ...currentInvestment,
+      name: newInvestment.name,
+      symbol: newInvestment.symbol,
+      type: newInvestment.type,
+      value: parseFloat(newInvestment.value) || 0,
+      quantity: parseFloat(newInvestment.quantity) || 0,
+      purchasePrice: parseFloat(newInvestment.purchasePrice) || 0,
+      purchaseDate: newInvestment.purchaseDate,
+      sector: newInvestment.sector,
+      change: parseFloat(newInvestment.change) || 0
+    };
+
+    const updatedInvestments = investments.map(inv => 
+      inv.id === currentInvestment.id ? updatedInvestment : inv
+    );
+
+    setInvestments(updatedInvestments);
+    setShowEditInvestment(false);
+    setCurrentInvestment(null);
+    setNewInvestment({
+      name: "",
+      symbol: "",
+      type: "",
+      value: "",
+      quantity: "",
+      purchasePrice: "",
+      purchaseDate: new Date().toISOString().split('T')[0],
+      sector: "",
+      change: ""
+    });
+
+    toast({
+      title: "Investment updated",
+      description: "Your investment has been successfully updated."
+    });
+  };
+
+  const handleDeleteInvestment = (id) => {
+    const updatedInvestments = investments.filter(inv => inv.id !== id);
+    setInvestments(updatedInvestments);
+    
+    toast({
+      title: "Investment deleted",
+      description: "Your investment has been removed from your portfolio."
+    });
+  };
+
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewInvestment(prev => ({
       ...prev,
@@ -148,7 +224,7 @@ const InvestmentTracker = () => {
     }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handleSelectChange = (name, value) => {
     setNewInvestment(prev => ({
       ...prev,
       [name]: value
@@ -214,6 +290,7 @@ const InvestmentTracker = () => {
                 <div className="space-y-2">
                   <Label htmlFor="type">Investment Type</Label>
                   <Select 
+                    value={newInvestment.type}
                     onValueChange={(value) => handleSelectChange("type", value)}
                   >
                     <SelectTrigger>
@@ -301,6 +378,134 @@ const InvestmentTracker = () => {
                 Cancel
               </Button>
               <Button onClick={handleAddInvestment}>Save Investment</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Investment Dialog */}
+        <Dialog open={showEditInvestment} onOpenChange={setShowEditInvestment}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Investment</DialogTitle>
+              <DialogDescription>
+                Update the details of your investment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Investment Name</Label>
+                  <Input
+                    id="edit-name"
+                    name="name"
+                    placeholder="Enter name"
+                    value={newInvestment.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-symbol">Symbol/Ticker</Label>
+                  <Input
+                    id="edit-symbol"
+                    name="symbol"
+                    placeholder="e.g., AAPL"
+                    value={newInvestment.symbol}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-type">Investment Type</Label>
+                  <Select 
+                    value={newInvestment.type}
+                    onValueChange={(value) => handleSelectChange("type", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {investmentTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-sector">Sector/Category</Label>
+                  <Input
+                    id="edit-sector"
+                    name="sector"
+                    placeholder="e.g., Technology"
+                    value={newInvestment.sector}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-quantity">Quantity/Shares</Label>
+                  <Input
+                    id="edit-quantity"
+                    name="quantity"
+                    type="number"
+                    placeholder="0"
+                    value={newInvestment.quantity}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-purchasePrice">Purchase Price</Label>
+                  <Input
+                    id="edit-purchasePrice"
+                    name="purchasePrice"
+                    type="number"
+                    placeholder="0.00"
+                    value={newInvestment.purchasePrice}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-purchaseDate">Purchase Date</Label>
+                  <Input
+                    id="edit-purchaseDate"
+                    name="purchaseDate"
+                    type="date"
+                    value={newInvestment.purchaseDate}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-value">Current Value</Label>
+                  <Input
+                    id="edit-value"
+                    name="value"
+                    type="number"
+                    placeholder="0.00"
+                    value={newInvestment.value}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-change">Change (%)</Label>
+                <Input
+                  id="edit-change"
+                  name="change"
+                  type="number"
+                  placeholder="0.0"
+                  value={newInvestment.change}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEditInvestment(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateInvestment}>Update Investment</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -394,6 +599,7 @@ const InvestmentTracker = () => {
                   <TableHead className="hidden md:table-cell">Purchase Price</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
                   <TableHead>Change</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -414,6 +620,24 @@ const InvestmentTracker = () => {
                     </TableCell>
                     <TableCell className={investment.change >= 0 ? "text-finance-green" : "text-finance-red"}>
                       {investment.change >= 0 ? "+" : ""}{investment.change}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleEditInvestment(investment)}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleDeleteInvestment(investment.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
