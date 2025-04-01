@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Plus, Receipt, Search, Upload, PieChart, ListFilter, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const categories = [
   "Food & Dining",
@@ -83,6 +86,7 @@ const mockExpenses = [
 ];
 
 const ExpenseTracker = () => {
+  const { currencySymbol } = useCurrency();
   const [expenses, setExpenses] = useState(mockExpenses);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [newExpense, setNewExpense] = useState({
@@ -143,13 +147,6 @@ const ExpenseTracker = () => {
     }));
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -184,7 +181,7 @@ const ExpenseTracker = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="amount">Amount ($)</Label>
+                    <Label htmlFor="amount">Amount</Label>
                     <Input
                       id="amount"
                       name="amount"
@@ -291,29 +288,33 @@ const ExpenseTracker = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
-              <div className="grid grid-cols-7 border-b bg-muted/50 px-4 py-2 text-sm font-medium">
-                <div className="col-span-1">Date</div>
-                <div className="col-span-2">Merchant</div>
-                <div className="col-span-1">Amount</div>
-                <div className="col-span-1">Category</div>
-                <div className="col-span-1">Payment</div>
-                <div className="col-span-1">Notes</div>
-              </div>
-              <div className="divide-y">
-                {expenses.map(expense => (
-                  <div key={expense.id} className="grid grid-cols-7 px-4 py-3 text-sm">
-                    <div className="col-span-1">{new Date(expense.date).toLocaleDateString()}</div>
-                    <div className="col-span-2 font-medium">{expense.merchant}</div>
-                    <div className="col-span-1 font-medium">
-                      <CurrencyDisplay amount={expense.amount} />
-                    </div>
-                    <div className="col-span-1">{expense.category}</div>
-                    <div className="col-span-1">{expense.paymentMethod}</div>
-                    <div className="col-span-1 truncate">{expense.notes}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Merchant</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead className="hidden sm:table-cell">Category</TableHead>
+                    <TableHead className="hidden sm:table-cell">Payment</TableHead>
+                    <TableHead className="hidden md:table-cell">Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expenses.map(expense => (
+                    <TableRow key={expense.id}>
+                      <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
+                      <TableCell className="font-medium">{expense.merchant}</TableCell>
+                      <TableCell className="font-medium">
+                        <CurrencyDisplay amount={expense.amount} />
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">{expense.category}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{expense.paymentMethod}</TableCell>
+                      <TableCell className="hidden md:table-cell">{expense.notes}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
