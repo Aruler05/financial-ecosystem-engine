@@ -3,8 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Plus, DollarSign } from "lucide-react";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const IncomeTracker = () => {
+  const { currencySymbol } = useCurrency();
+  
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
