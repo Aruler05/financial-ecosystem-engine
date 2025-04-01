@@ -13,13 +13,22 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   // Get the saved currency from localStorage or use "$" as default
   const [currencySymbol, setCurrencySymbol] = useState<CurrencySymbol>(() => {
-    const savedCurrency = localStorage.getItem('preferredCurrency');
-    return (savedCurrency as CurrencySymbol) || "$";
+    try {
+      const savedCurrency = localStorage.getItem('preferredCurrency');
+      return savedCurrency && isCurrencySymbol(savedCurrency) ? savedCurrency as CurrencySymbol : "$";
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+      return "$";
+    }
   });
 
   // Save to localStorage whenever currency changes
   useEffect(() => {
-    localStorage.setItem('preferredCurrency', currencySymbol);
+    try {
+      localStorage.setItem('preferredCurrency', currencySymbol);
+    } catch (error) {
+      console.error("Error saving to localStorage:", error);
+    }
   }, [currencySymbol]);
 
   return (
@@ -27,6 +36,12 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       {children}
     </CurrencyContext.Provider>
   );
+}
+
+// Type guard to ensure the value is a valid CurrencySymbol
+function isCurrencySymbol(value: string): value is CurrencySymbol {
+  const validSymbols: string[] = ["$", "€", "£", "¥", "₹", "₽", "₣", "₩", "₺", "₴", "₦", "₱", "฿", "₫", "₲", "₡", "₸"];
+  return validSymbols.includes(value);
 }
 
 export function useCurrency() {

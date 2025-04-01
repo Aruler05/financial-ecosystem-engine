@@ -1,9 +1,172 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp } from "lucide-react";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+const investmentTypes = [
+  "Stocks",
+  "Bonds",
+  "ETFs",
+  "Mutual Funds",
+  "Crypto",
+  "Real Estate",
+  "Commodities",
+  "Other"
+];
+
+const mockInvestments = [
+  {
+    id: 1,
+    name: "Apple Inc.",
+    symbol: "AAPL",
+    type: "Stocks",
+    value: 18450.00,
+    quantity: 105,
+    purchasePrice: 156.32,
+    purchaseDate: "2022-04-15",
+    sector: "Technology",
+    change: 12.4
+  },
+  {
+    id: 2,
+    name: "Vanguard S&P 500 ETF",
+    symbol: "VOO",
+    type: "ETFs",
+    value: 15320.00,
+    quantity: 38,
+    purchasePrice: 360.45,
+    purchaseDate: "2021-10-08",
+    sector: "Index Fund",
+    change: 9.2
+  },
+  {
+    id: 3,
+    name: "Bitcoin",
+    symbol: "BTC",
+    type: "Crypto",
+    value: 12800.00,
+    quantity: 0.25,
+    purchasePrice: 44250.00,
+    purchaseDate: "2023-02-22",
+    sector: "Cryptocurrency",
+    change: 15.7
+  },
+  {
+    id: 4,
+    name: "Microsoft Corp.",
+    symbol: "MSFT",
+    type: "Stocks",
+    value: 11250.00,
+    quantity: 32,
+    purchasePrice: 325.00,
+    purchaseDate: "2022-07-30",
+    sector: "Technology",
+    change: 8.3
+  },
+  {
+    id: 5,
+    name: "Amazon.com Inc.",
+    symbol: "AMZN",
+    type: "Stocks",
+    value: 9850.00,
+    quantity: 85,
+    purchasePrice: 118.45,
+    purchaseDate: "2022-05-12",
+    sector: "Consumer Cyclical",
+    change: -2.1
+  }
+];
 
 const InvestmentTracker = () => {
+  const [investments, setInvestments] = useState(mockInvestments);
+  const [showAddInvestment, setShowAddInvestment] = useState(false);
+  const [newInvestment, setNewInvestment] = useState({
+    name: "",
+    symbol: "",
+    type: "",
+    value: "",
+    quantity: "",
+    purchasePrice: "",
+    purchaseDate: new Date().toISOString().split('T')[0],
+    sector: "",
+    change: ""
+  });
+  const { toast } = useToast();
+
+  const handleAddInvestment = () => {
+    if (!newInvestment.name || !newInvestment.symbol || !newInvestment.type || !newInvestment.quantity) {
+      toast({
+        title: "Missing information",
+        description: "Please fill out all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const investmentToAdd = {
+      ...newInvestment,
+      id: investments.length + 1,
+      value: parseFloat(newInvestment.value) || 0,
+      quantity: parseFloat(newInvestment.quantity) || 0,
+      purchasePrice: parseFloat(newInvestment.purchasePrice) || 0,
+      change: parseFloat(newInvestment.change) || 0
+    };
+
+    setInvestments([investmentToAdd, ...investments]);
+    setShowAddInvestment(false);
+    setNewInvestment({
+      name: "",
+      symbol: "",
+      type: "",
+      value: "",
+      quantity: "",
+      purchasePrice: "",
+      purchaseDate: new Date().toISOString().split('T')[0],
+      sector: "",
+      change: ""
+    });
+
+    toast({
+      title: "Investment added",
+      description: "Your investment has been successfully added."
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewInvestment(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setNewInvestment(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Calculate portfolio total value
+  const portfolioValue = investments.reduce((sum, investment) => sum + investment.value, 0);
+  
+  // Calculate asset allocation
+  const stocksValue = investments.filter(inv => inv.type === "Stocks").reduce((sum, inv) => sum + inv.value, 0);
+  const bondsValue = investments.filter(inv => ["Bonds", "ETFs"].includes(inv.type)).reduce((sum, inv) => sum + inv.value, 0);
+  const cryptoValue = investments.filter(inv => inv.type === "Crypto").reduce((sum, inv) => sum + inv.value, 0);
+  
+  const stocksPercent = Math.round((stocksValue / portfolioValue) * 100) || 0;
+  const bondsPercent = Math.round((bondsValue / portfolioValue) * 100) || 0;
+  const cryptoPercent = Math.round((cryptoValue / portfolioValue) * 100) || 0;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -11,9 +174,136 @@ const InvestmentTracker = () => {
           <h1 className="text-3xl font-bold tracking-tight">Investment Portfolio</h1>
           <p className="text-muted-foreground">Track and analyze your investments.</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> Add Investment
-        </Button>
+        <Dialog open={showAddInvestment} onOpenChange={setShowAddInvestment}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" /> Add Investment
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Investment</DialogTitle>
+              <DialogDescription>
+                Enter the details of your investment below.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Investment Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder="Enter name"
+                    value={newInvestment.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="symbol">Symbol/Ticker</Label>
+                  <Input
+                    id="symbol"
+                    name="symbol"
+                    placeholder="e.g., AAPL"
+                    value={newInvestment.symbol}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="type">Investment Type</Label>
+                  <Select 
+                    onValueChange={(value) => handleSelectChange("type", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {investmentTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="sector">Sector/Category</Label>
+                  <Input
+                    id="sector"
+                    name="sector"
+                    placeholder="e.g., Technology"
+                    value={newInvestment.sector}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Quantity/Shares</Label>
+                  <Input
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    placeholder="0"
+                    value={newInvestment.quantity}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="purchasePrice">Purchase Price</Label>
+                  <Input
+                    id="purchasePrice"
+                    name="purchasePrice"
+                    type="number"
+                    placeholder="0.00"
+                    value={newInvestment.purchasePrice}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="purchaseDate">Purchase Date</Label>
+                  <Input
+                    id="purchaseDate"
+                    name="purchaseDate"
+                    type="date"
+                    value={newInvestment.purchaseDate}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="value">Current Value</Label>
+                  <Input
+                    id="value"
+                    name="value"
+                    type="number"
+                    placeholder="0.00"
+                    value={newInvestment.value}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="change">Change (%)</Label>
+                <Input
+                  id="change"
+                  name="change"
+                  type="number"
+                  placeholder="0.0"
+                  value={newInvestment.change}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddInvestment(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddInvestment}>Save Investment</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -23,12 +313,14 @@ const InvestmentTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$145,320.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={portfolioValue} />
+              </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-indigo/10">
                 <TrendingUp className="h-5 w-5 text-finance-indigo" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">+$12,450.00 (9.4%) this year</p>
+            <p className="text-xs text-muted-foreground">+<CurrencyDisplay amount={12450.00} /> (9.4%) this year</p>
           </CardContent>
         </Card>
 
@@ -38,12 +330,14 @@ const InvestmentTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$85,720.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={stocksValue} />
+              </div>
               <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
-                59% of portfolio
+                {stocksPercent}% of portfolio
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">+$8,200.00 (10.6%) this year</p>
+            <p className="text-xs text-muted-foreground">+<CurrencyDisplay amount={8200.00} /> (10.6%) this year</p>
           </CardContent>
         </Card>
 
@@ -53,12 +347,14 @@ const InvestmentTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$42,300.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={bondsValue} />
+              </div>
               <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
-                29% of portfolio
+                {bondsPercent}% of portfolio
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">+$2,850.00 (7.2%) this year</p>
+            <p className="text-xs text-muted-foreground">+<CurrencyDisplay amount={2850.00} /> (7.2%) this year</p>
           </CardContent>
         </Card>
 
@@ -68,151 +364,64 @@ const InvestmentTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$17,300.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={cryptoValue} />
+              </div>
               <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
-                12% of portfolio
+                {cryptoPercent}% of portfolio
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">+$1,400.00 (8.8%) this year</p>
+            <p className="text-xs text-muted-foreground">+<CurrencyDisplay amount={1400.00} /> (8.8%) this year</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Holdings</CardTitle>
-            <CardDescription>Your largest investments by value</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200">
-                    AAPL
-                  </div>
-                  <div>
-                    <p className="font-medium">Apple Inc.</p>
-                    <p className="text-sm text-muted-foreground">Technology</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">$18,450.00</p>
-                  <p className="text-sm text-finance-green">+12.4%</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-200">
-                    VOO
-                  </div>
-                  <div>
-                    <p className="font-medium">Vanguard S&P 500 ETF</p>
-                    <p className="text-sm text-muted-foreground">Index Fund</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">$15,320.00</p>
-                  <p className="text-sm text-finance-green">+9.2%</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-200">
-                    BTC
-                  </div>
-                  <div>
-                    <p className="font-medium">Bitcoin</p>
-                    <p className="text-sm text-muted-foreground">Cryptocurrency</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">$12,800.00</p>
-                  <p className="text-sm text-finance-green">+15.7%</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-200">
-                    MSFT
-                  </div>
-                  <div>
-                    <p className="font-medium">Microsoft Corp.</p>
-                    <p className="text-sm text-muted-foreground">Technology</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">$11,250.00</p>
-                  <p className="text-sm text-finance-green">+8.3%</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-200">
-                    AMZN
-                  </div>
-                  <div>
-                    <p className="font-medium">Amazon.com Inc.</p>
-                    <p className="text-sm text-muted-foreground">Consumer Cyclical</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">$9,850.00</p>
-                  <p className="text-sm text-finance-red">-2.1%</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Asset Allocation</CardTitle>
-            <CardDescription>Breakdown of your portfolio</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 flex items-center justify-center">
-              <div className="relative h-40 w-40 rounded-full border-8 border-[conic-gradient(var(--finance-blue)_0%,var(--finance-blue)_59%,var(--finance-indigo)_59%,var(--finance-indigo)_88%,var(--finance-purple)_88%,var(--finance-purple)_100%)]">
-                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-card">
-                  <span className="text-lg font-bold">$145,320</span>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-blue"></div>
-                  <span className="font-medium">Stocks - 59%</span>
-                </div>
-                <p className="text-sm text-muted-foreground">$85,720.00</p>
-              </div>
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-indigo"></div>
-                  <span className="font-medium">Bonds & ETFs - 29%</span>
-                </div>
-                <p className="text-sm text-muted-foreground">$42,300.00</p>
-              </div>
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-purple"></div>
-                  <span className="font-medium">Crypto - 12%</span>
-                </div>
-                <p className="text-sm text-muted-foreground">$17,300.00</p>
-              </div>
-            </div>
-            <div className="mt-6">
-              <Button variant="outline" size="sm" className="w-full">
-                View Full Portfolio
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Investment Holdings</CardTitle>
+          <CardDescription>Your investments by market value</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Symbol</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Value</TableHead>
+                  <TableHead className="hidden sm:table-cell">Quantity</TableHead>
+                  <TableHead className="hidden md:table-cell">Purchase Price</TableHead>
+                  <TableHead className="hidden md:table-cell">Date</TableHead>
+                  <TableHead>Change</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {investments.map((investment) => (
+                  <TableRow key={investment.id}>
+                    <TableCell className="font-medium">{investment.name}</TableCell>
+                    <TableCell>{investment.symbol}</TableCell>
+                    <TableCell>{investment.type}</TableCell>
+                    <TableCell>
+                      <CurrencyDisplay amount={investment.value} />
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{investment.quantity}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <CurrencyDisplay amount={investment.purchasePrice} />
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {new Date(investment.purchaseDate).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className={investment.change >= 0 ? "text-finance-green" : "text-finance-red"}>
+                      {investment.change >= 0 ? "+" : ""}{investment.change}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
