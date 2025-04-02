@@ -11,6 +11,7 @@ import {
   BadgeDollarSign,
   Home,
   Menu,
+  IndianRupee,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { useFontSize } from "@/hooks/use-font-size";
 
 const menuItems = [
   {
@@ -90,9 +92,11 @@ const menuItems = [
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { fontSize } = useFontSize();
+  
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full" style={{ fontSize: `${fontSize}px` }}>
         <AppSidebar />
         <main className="flex-1 overflow-hidden">
           <div className="flex h-14 items-center border-b px-4 md:hidden">
@@ -101,7 +105,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </SidebarTrigger>
             <h1 className="ml-4 text-xl font-semibold">FinTrack AI</h1>
           </div>
-          <div className="container p-4 md:p-6 overflow-auto max-h-[calc(100vh-56px)] md:max-h-screen">
+          <div className="container px-2 sm:px-4 md:p-6 overflow-auto max-h-[calc(100vh-56px)] md:max-h-screen w-full max-w-full">
             {children}
           </div>
         </main>
@@ -116,13 +120,16 @@ function AppSidebar() {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="flex items-center px-6 py-4">
-        <DollarSign className="h-6 w-6 text-primary" />
+        <IndianRupee className="h-6 w-6 text-primary" />
         <h1 className="ml-2 text-xl font-bold">FinTrack AI</h1>
       </SidebarHeader>
       <SidebarContent>
         <div className="px-4 py-3 mb-2">
-          <div className="text-sm font-medium text-muted-foreground mb-2">Currency</div>
-          <CurrencySelector />
+          <div className="text-sm font-medium text-muted-foreground mb-2">Settings</div>
+          <div className="space-y-3">
+            <CurrencySelector />
+            <FontSizeSelector />
+          </div>
         </div>
         <SidebarMenu>
           {menuItems.map((item) => (
@@ -146,5 +153,39 @@ function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
+  );
+}
+
+function FontSizeSelector() {
+  const { fontSize, setFontSize } = useFontSize();
+  
+  const fontSizes = [
+    { value: 14, label: 'Small' },
+    { value: 16, label: 'Normal' },
+    { value: 18, label: 'Large' },
+    { value: 20, label: 'X-Large' },
+  ];
+  
+  return (
+    <div className="rounded-lg p-2 bg-slate-100 dark:bg-slate-800">
+      <div className="text-sm font-medium mb-2">Font Size</div>
+      <div className="grid grid-cols-4 gap-1">
+        {fontSizes.map((size) => (
+          <button
+            key={size.value}
+            className={cn(
+              "text-xs px-1 py-1 rounded",
+              fontSize === size.value 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-slate-200 dark:bg-slate-700 hover:bg-slate-300"
+            )}
+            onClick={() => setFontSize(size.value)}
+            aria-label={`Set font size to ${size.label}`}
+          >
+            {size.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

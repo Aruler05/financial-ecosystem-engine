@@ -5,9 +5,10 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 interface CurrencyDisplayProps {
   amount: number;
   className?: string;
+  showSymbol?: boolean;
 }
 
-export function CurrencyDisplay({ amount, className }: CurrencyDisplayProps) {
+export function CurrencyDisplay({ amount, className, showSymbol = true }: CurrencyDisplayProps) {
   const { currencySymbol } = useCurrency();
   
   // Format the number with commas and 2 decimal places
@@ -18,7 +19,7 @@ export function CurrencyDisplay({ amount, className }: CurrencyDisplayProps) {
   
   return (
     <span className={className}>
-      <span className="currency-symbol">{currencySymbol}</span>{formattedAmount}
+      {showSymbol && <span className="currency-symbol">{currencySymbol}</span>}{formattedAmount}
     </span>
   );
 }

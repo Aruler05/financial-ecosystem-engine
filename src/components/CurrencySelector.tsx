@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { DollarSign } from "lucide-react";
+import { IndianRupee } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const currencies = [
@@ -43,23 +43,26 @@ export function CurrencySelector() {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-lg p-2 bg-slate-100 dark:bg-slate-800">
-      <DollarSign className="h-4 w-4 text-primary" />
-      <Select
-        value={currencySymbol}
-        onValueChange={handleCurrencyChange}
-      >
-        <SelectTrigger className="w-[150px] border-none bg-transparent text-primary font-medium">
-          <SelectValue placeholder="Select Currency" className="text-primary" />
-        </SelectTrigger>
-        <SelectContent className="bg-popover">
-          {currencies.map((currency) => (
-            <SelectItem key={currency.symbol} value={currency.symbol}>
-              <span className="font-medium">{currency.symbol}</span> - {currency.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="rounded-lg p-2 bg-slate-100 dark:bg-slate-800">
+      <div className="text-sm font-medium mb-2">Currency</div>
+      <div className="flex items-center gap-2">
+        <IndianRupee className="h-4 w-4 text-primary" />
+        <Select
+          value={currencySymbol}
+          onValueChange={handleCurrencyChange}
+        >
+          <SelectTrigger className="w-[150px] border-none bg-transparent text-primary font-medium">
+            <SelectValue placeholder="Select Currency" className="text-primary" />
+          </SelectTrigger>
+          <SelectContent className="bg-popover">
+            {currencies.map((currency) => (
+              <SelectItem key={currency.symbol} value={currency.symbol}>
+                <span className="font-medium">{currency.symbol}</span> - {currency.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

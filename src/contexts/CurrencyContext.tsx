@@ -11,25 +11,25 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
-  // Get the saved currency from localStorage or use "$" as default
-  const [currencySymbol, setCurrencySymbol] = useState<CurrencySymbol>(() => {
+  // Get the saved currency from localStorage or use "₹" (Indian Rupee) as default
+  const [currencySymbol, setCurrencySymbolState] = useState<CurrencySymbol>(() => {
     try {
       const savedCurrency = localStorage.getItem('preferredCurrency');
-      return savedCurrency && isCurrencySymbol(savedCurrency) ? savedCurrency as CurrencySymbol : "$";
+      return savedCurrency && isCurrencySymbol(savedCurrency) ? savedCurrency as CurrencySymbol : "₹";
     } catch (error) {
       console.error("Error accessing localStorage:", error);
-      return "$";
+      return "₹";
     }
   });
 
-  // Save to localStorage whenever currency changes
-  useEffect(() => {
+  const setCurrencySymbol = (symbol: CurrencySymbol) => {
+    setCurrencySymbolState(symbol);
     try {
-      localStorage.setItem('preferredCurrency', currencySymbol);
+      localStorage.setItem('preferredCurrency', symbol);
     } catch (error) {
       console.error("Error saving to localStorage:", error);
     }
-  }, [currencySymbol]);
+  };
 
   return (
     <CurrencyContext.Provider value={{ currencySymbol, setCurrencySymbol }}>

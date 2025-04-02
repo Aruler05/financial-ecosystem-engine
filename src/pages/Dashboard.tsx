@@ -17,6 +17,34 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent
+} from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+
+const expensesData = [
+  { name: 'Housing', value: 1200, color: '#DC2626' },
+  { name: 'Transportation', value: 350, color: '#1E40AF' },
+  { name: 'Food', value: 420, color: '#059669' },
+  { name: 'Entertainment', value: 180, color: '#8B5CF6' },
+  { name: 'Utilities', value: 240, color: '#EA580C' },
+  { name: 'Healthcare', value: 150, color: '#0D9488' },
+  { name: 'Other', value: 100, color: '#4B5563' },
+];
+
+const pieChartConfig = {
+  housing: { label: 'Housing', color: '#DC2626' },
+  transportation: { label: 'Transportation', color: '#1E40AF' },
+  food: { label: 'Food', color: '#059669' },
+  entertainment: { label: 'Entertainment', color: '#8B5CF6' },
+  utilities: { label: 'Utilities', color: '#EA580C' },
+  healthcare: { label: 'Healthcare', color: '#0D9488' },
+  other: { label: 'Other', color: '#4B5563' },
+};
 
 const Dashboard = () => {
   return (
@@ -58,7 +86,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-2">
+        <Card className="col-span-1 lg:col-span-2">
           <CardHeader>
             <CardTitle>Budget Overview</CardTitle>
             <CardDescription>Your spending by category this month</CardDescription>
@@ -116,6 +144,56 @@ const Dashboard = () => {
         </Card>
 
         <Card>
+          <CardHeader>
+            <CardTitle>Expenses Breakdown</CardTitle>
+            <CardDescription>Monthly expenses by category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[220px] w-full">
+              <ChartContainer className="h-full" config={pieChartConfig}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={expensesData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      innerRadius={45}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      nameKey="name"
+                    >
+                      {expensesData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip 
+                      content={
+                        <ChartTooltipContent
+                          formatter={(value) => (
+                            <span><CurrencyDisplay amount={value as number} /></span>
+                          )}
+                        />
+                      }
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <ChartLegend>
+                  <ChartLegendContent
+                    verticalAlign="bottom"
+                    layout="horizontal"
+                  />
+                </ChartLegend>
+              </ChartContainer>
+            </div>
+            <div className="mt-4 text-xs text-center text-muted-foreground">
+              Total Monthly Expenses: <CurrencyDisplay amount={2640.00} className="font-medium" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Upcoming Bills</CardTitle>
             <CardDescription>Bills due in the next 7 days</CardDescription>
