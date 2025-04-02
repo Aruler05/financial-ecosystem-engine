@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -88,7 +87,7 @@ const DebtTracker = () => {
     limit: ""
   });
   const [extraPayment, setExtraPayment] = useState({
-    debtId: 1,  // Default to first debt
+    debtId: 1,
     amount: ""
   });
   
@@ -246,12 +245,29 @@ const DebtTracker = () => {
     
     // Apply payment to debt balance
     const newBalance = Math.max(0, debt.balance - paymentAmount);
-    updatedDebts[debtIndex] = {
-      ...debt,
-      balance: newBalance,
-      percentUsed: debt.limit ? (newBalance / debt.limit * 100) : undefined,
-      percentPaid: debt.percentPaid ? Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100)) : undefined
-    };
+    
+    // Create a new debt object with the correct properties based on its type
+    if ('percentUsed' in debt && debt.limit) {
+      // For credit card type debts with a limit
+      updatedDebts[debtIndex] = {
+        ...debt,
+        balance: newBalance,
+        percentUsed: newBalance / debt.limit * 100
+      };
+    } else if ('percentPaid' in debt) {
+      // For loan type debts with percentPaid
+      updatedDebts[debtIndex] = {
+        ...debt,
+        balance: newBalance,
+        percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
+      };
+    } else {
+      // Fallback just in case
+      updatedDebts[debtIndex] = {
+        ...debt,
+        balance: newBalance
+      };
+    }
     
     // Update debts and summary
     setDebts(updatedDebts);
