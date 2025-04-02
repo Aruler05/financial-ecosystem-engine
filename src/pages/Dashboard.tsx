@@ -1,4 +1,3 @@
-
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrackerCard } from "@/components/dashboard/TrackerCard";
 import {
@@ -25,6 +24,8 @@ import {
   ChartLegendContent
 } from "@/components/ui/chart";
 import { PieChart, Pie, Cell } from "recharts";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const expensesData = [
   { name: 'Housing', value: 1200, color: '#DC2626' },
@@ -47,6 +48,8 @@ const pieChartConfig = {
 };
 
 const Dashboard = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="space-y-6">
       <div>
@@ -91,55 +94,29 @@ const Dashboard = () => {
             <CardTitle>Budget Overview</CardTitle>
             <CardDescription>Your spending by category this month</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-red"></div>
-                  <span>Housing</span>
-                </div>
-                <div className="font-medium">
-                  <CurrencyDisplay amount={1200.00} /> / <CurrencyDisplay amount={1500.00} />
-                </div>
+          <CardContent>
+            <ScrollArea className={isMobile ? "h-[220px]" : "h-[260px]"}>
+              <div className="space-y-4 pr-4">
+                {expensesData.map((expense, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: expense.color }}></div>
+                        <span>{expense.name}</span>
+                      </div>
+                      <div className="font-medium">
+                        <CurrencyDisplay amount={expense.value} /> / <CurrencyDisplay amount={expense.value * 1.25} />
+                      </div>
+                    </div>
+                    <Progress 
+                      value={(expense.value / (expense.value * 1.25)) * 100} 
+                      className="h-2 bg-muted" 
+                      indicatorClassName={`bg-[${expense.color}]`}
+                    />
+                  </div>
+                ))}
               </div>
-              <Progress value={80} className="h-2 bg-muted" indicatorClassName="bg-finance-red" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-blue"></div>
-                  <span>Transportation</span>
-                </div>
-                <div className="font-medium">
-                  <CurrencyDisplay amount={350.00} /> / <CurrencyDisplay amount={400.00} />
-                </div>
-              </div>
-              <Progress value={87.5} className="h-2 bg-muted" indicatorClassName="bg-finance-blue" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-green"></div>
-                  <span>Food</span>
-                </div>
-                <div className="font-medium">
-                  <CurrencyDisplay amount={420.00} /> / <CurrencyDisplay amount={600.00} />
-                </div>
-              </div>
-              <Progress value={70} className="h-2 bg-muted" indicatorClassName="bg-finance-green" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-finance-purple"></div>
-                  <span>Entertainment</span>
-                </div>
-                <div className="font-medium">
-                  <CurrencyDisplay amount={180.00} /> / <CurrencyDisplay amount={250.00} />
-                </div>
-              </div>
-              <Progress value={72} className="h-2 bg-muted" indicatorClassName="bg-finance-purple" />
-            </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
@@ -149,17 +126,16 @@ const Dashboard = () => {
             <CardDescription>Monthly expenses by category</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[220px] w-full">
+            <div className={isMobile ? "h-[190px]" : "h-[220px]"} className="w-full">
               <ChartContainer className="h-full" config={pieChartConfig}>
-                {/* Wrap PieChart in a single element to fix the 'children' error */}
                 <PieChart>
                   <Pie
                     data={expensesData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    innerRadius={45}
-                    outerRadius={80}
+                    innerRadius={isMobile ? 35 : 45}
+                    outerRadius={isMobile ? 65 : 80}
                     paddingAngle={2}
                     dataKey="value"
                     nameKey="name"
@@ -179,15 +155,13 @@ const Dashboard = () => {
                   />
                 </PieChart>
               </ChartContainer>
-              {/* Move ChartLegend outside ChartContainer as it's not supposed to be a child */}
               <ChartLegend>
                 <ChartLegendContent
                   verticalAlign="bottom"
-                  // Removed the layout prop as it doesn't exist on ChartLegendContent
                 />
               </ChartLegend>
             </div>
-            <div className="mt-4 text-xs text-center text-muted-foreground">
+            <div className="mt-2 text-xs text-center text-muted-foreground">
               Total Monthly Expenses: <CurrencyDisplay amount={2640.00} className="font-medium" />
             </div>
           </CardContent>
@@ -198,28 +172,46 @@ const Dashboard = () => {
             <CardTitle>Upcoming Bills</CardTitle>
             <CardDescription>Bills due in the next 7 days</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Electricity Bill</p>
-                <p className="text-sm text-muted-foreground">Due in 2 days</p>
+          <CardContent>
+            <ScrollArea className={isMobile ? "h-[120px]" : "max-h-full"} className="space-y-4">
+              <div className="space-y-4 pr-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Electricity Bill</p>
+                    <p className="text-sm text-muted-foreground">Due in 2 days</p>
+                  </div>
+                  <p className="font-medium"><CurrencyDisplay amount={85.40} /></p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Internet</p>
+                    <p className="text-sm text-muted-foreground">Due in 5 days</p>
+                  </div>
+                  <p className="font-medium"><CurrencyDisplay amount={59.99} /></p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Credit Card</p>
+                    <p className="text-sm text-muted-foreground">Due in 7 days</p>
+                  </div>
+                  <p className="font-medium"><CurrencyDisplay amount={340.25} /></p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Phone Bill</p>
+                    <p className="text-sm text-muted-foreground">Due in 3 days</p>
+                  </div>
+                  <p className="font-medium"><CurrencyDisplay amount={45.99} /></p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Water Bill</p>
+                    <p className="text-sm text-muted-foreground">Due in 6 days</p>
+                  </div>
+                  <p className="font-medium"><CurrencyDisplay amount={32.50} /></p>
+                </div>
               </div>
-              <p className="font-medium"><CurrencyDisplay amount={85.40} /></p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Internet</p>
-                <p className="text-sm text-muted-foreground">Due in 5 days</p>
-              </div>
-              <p className="font-medium"><CurrencyDisplay amount={59.99} /></p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Credit Card</p>
-                <p className="text-sm text-muted-foreground">Due in 7 days</p>
-              </div>
-              <p className="font-medium"><CurrencyDisplay amount={340.25} /></p>
-            </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>
