@@ -305,22 +305,31 @@ const DebtTracker = () => {
     const debt = updatedDebts[debtIndex];
     
     if (isCreditCardDebt(debt)) {
+      const newBalance = Math.max(0, debt.balance - paymentAmount);
+      const newPercentUsed = Math.max(0, (newBalance / debt.limit) * 100);
+      
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: Math.max(0, debt.balance - paymentAmount),
-        percentUsed: Math.max(0, ((debt.balance - paymentAmount) / debt.limit) * 100)
+        balance: newBalance,
+        percentUsed: newPercentUsed
       };
     } else if (isLoanDebtWithMonths(debt)) {
+      const newBalance = Math.max(0, debt.balance - paymentAmount);
+      const percentPaid = Math.min(100, ((debt.balance - newBalance) / debt.balance) * 100 + debt.percentPaid);
+      
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: Math.max(0, debt.balance - paymentAmount),
-        percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
+        balance: newBalance,
+        percentPaid: percentPaid
       };
     } else if (isLoanDebtWithYears(debt)) {
+      const newBalance = Math.max(0, debt.balance - paymentAmount);
+      const percentPaid = Math.min(100, ((debt.balance - newBalance) / debt.balance) * 100 + debt.percentPaid);
+      
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: Math.max(0, debt.balance - paymentAmount),
-        percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
+        balance: newBalance,
+        percentPaid: percentPaid
       };
     }
     
