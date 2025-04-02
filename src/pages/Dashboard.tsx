@@ -1,3 +1,4 @@
+
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrackerCard } from "@/components/dashboard/TrackerCard";
 import {
@@ -95,8 +96,8 @@ const Dashboard = () => {
             <CardDescription>Your spending by category this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className={isMobile ? "h-[220px]" : "h-[260px]"}>
-              <div className="space-y-4 pr-4">
+            <ScrollArea className={`${isMobile ? "h-[220px]" : "h-[260px]"} pr-4`}>
+              <div className="space-y-4">
                 {expensesData.map((expense, index) => (
                   <div key={index} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
@@ -126,7 +127,7 @@ const Dashboard = () => {
             <CardDescription>Monthly expenses by category</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className={isMobile ? "h-[190px]" : "h-[220px]"} className="w-full">
+            <div className={`${isMobile ? "h-[190px]" : "h-[220px]"} w-full`}>
               <ChartContainer className="h-full" config={pieChartConfig}>
                 <PieChart>
                   <Pie
@@ -173,8 +174,8 @@ const Dashboard = () => {
             <CardDescription>Bills due in the next 7 days</CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className={isMobile ? "h-[120px]" : "max-h-full"} className="space-y-4">
-              <div className="space-y-4 pr-4">
+            <ScrollArea className={`${isMobile ? "h-[120px]" : "max-h-full"} pr-4`}>
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Electricity Bill</p>
