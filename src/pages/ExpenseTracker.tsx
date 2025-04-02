@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const categories = [
   "Food & Dining",
@@ -98,6 +98,8 @@ const ExpenseTracker = () => {
     notes: ""
   });
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(null);
 
   const handleAddExpense = () => {
     if (!newExpense.merchant || !newExpense.amount || !newExpense.category || !newExpense.paymentMethod) {
@@ -145,6 +147,23 @@ const ExpenseTracker = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedExpenseId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedExpenseId === null) return;
+    
+    setExpenses(expenses.filter(expense => expense.id !== selectedExpenseId));
+    setSelectedExpenseId(null);
+    
+    toast({
+      title: "Expense deleted",
+      description: "The expense has been removed."
+    });
   };
 
   return (
@@ -298,6 +317,7 @@ const ExpenseTracker = () => {
                     <TableHead className="hidden sm:table-cell">Category</TableHead>
                     <TableHead className="hidden sm:table-cell">Payment</TableHead>
                     <TableHead className="hidden md:table-cell">Notes</TableHead>
+                    <TableHead className="w-[50px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -311,6 +331,9 @@ const ExpenseTracker = () => {
                       <TableCell className="hidden sm:table-cell">{expense.category}</TableCell>
                       <TableCell className="hidden sm:table-cell">{expense.paymentMethod}</TableCell>
                       <TableCell className="hidden md:table-cell">{expense.notes}</TableCell>
+                      <TableCell>
+                        <DeleteButton onClick={() => handleDeleteClick(expense.id)} />
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -387,6 +410,14 @@ const ExpenseTracker = () => {
           </CardContent>
         </Card>
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Expense"
+        description="Are you sure you want to delete this expense? This action cannot be undone."
+      />
     </div>
   );
 };

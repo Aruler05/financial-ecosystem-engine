@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 const investmentTypes = [
   "Stocks",
@@ -100,6 +100,8 @@ const InvestmentTracker = () => {
     change: ""
   });
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedInvestmentId, setSelectedInvestmentId] = useState<number | null>(null);
 
   const handleAddInvestment = () => {
     if (!newInvestment.name || !newInvestment.symbol || !newInvestment.type || !newInvestment.quantity) {
@@ -155,10 +157,25 @@ const InvestmentTracker = () => {
     }));
   };
 
-  // Calculate portfolio total value
+  const handleDeleteClick = (id: number) => {
+    setSelectedInvestmentId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedInvestmentId === null) return;
+    
+    setInvestments(investments.filter(investment => investment.id !== selectedInvestmentId));
+    setSelectedInvestmentId(null);
+    
+    toast({
+      title: "Investment deleted",
+      description: "The investment has been removed from your portfolio."
+    });
+  };
+
   const portfolioValue = investments.reduce((sum, investment) => sum + investment.value, 0);
   
-  // Calculate asset allocation
   const stocksValue = investments.filter(inv => inv.type === "Stocks").reduce((sum, inv) => sum + inv.value, 0);
   const bondsValue = investments.filter(inv => ["Bonds", "ETFs"].includes(inv.type)).reduce((sum, inv) => sum + inv.value, 0);
   const cryptoValue = investments.filter(inv => inv.type === "Crypto").reduce((sum, inv) => sum + inv.value, 0);
@@ -394,6 +411,7 @@ const InvestmentTracker = () => {
                   <TableHead className="hidden md:table-cell">Purchase Price</TableHead>
                   <TableHead className="hidden md:table-cell">Date</TableHead>
                   <TableHead>Change</TableHead>
+                  <TableHead className="w-[50px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -415,6 +433,9 @@ const InvestmentTracker = () => {
                     <TableCell className={investment.change >= 0 ? "text-finance-green" : "text-finance-red"}>
                       {investment.change >= 0 ? "+" : ""}{investment.change}%
                     </TableCell>
+                    <TableCell>
+                      <DeleteButton onClick={() => handleDeleteClick(investment.id)} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -422,6 +443,14 @@ const InvestmentTracker = () => {
           </div>
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Investment"
+        description="Are you sure you want to delete this investment? This action cannot be undone."
+      />
     </div>
   );
 };

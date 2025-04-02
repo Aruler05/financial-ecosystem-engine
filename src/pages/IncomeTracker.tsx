@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 // Income frequency options
 const frequencies = [
@@ -83,6 +83,8 @@ const IncomeTracker = () => {
     taxRate: ""
   });
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedIncomeId, setSelectedIncomeId] = useState<number | null>(null);
 
   const handleAddIncome = () => {
     if (!newIncome.source || !newIncome.amount || !newIncome.type || !newIncome.frequency) {
@@ -131,6 +133,23 @@ const IncomeTracker = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedIncomeId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedIncomeId === null) return;
+    
+    setIncomes(incomes.filter(income => income.id !== selectedIncomeId));
+    setSelectedIncomeId(null);
+    
+    toast({
+      title: "Income deleted",
+      description: "The income source has been removed."
+    });
   };
 
   // Calculate total income
@@ -344,6 +363,7 @@ const IncomeTracker = () => {
                   <TableHead className="hidden sm:table-cell">Frequency</TableHead>
                   <TableHead className="hidden md:table-cell">Next Payment</TableHead>
                   <TableHead className="hidden md:table-cell">Tax Rate</TableHead>
+                  <TableHead className="w-[50px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -362,6 +382,9 @@ const IncomeTracker = () => {
                       {new Date(income.nextPayment).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{income.taxRate}</TableCell>
+                    <TableCell>
+                      <DeleteButton onClick={() => handleDeleteClick(income.id)} />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -369,6 +392,14 @@ const IncomeTracker = () => {
           </div>
         </CardContent>
       </Card>
+
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Income Source"
+        description="Are you sure you want to delete this income source? This action cannot be undone."
+      />
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 // Initial mock data
 const initialDebtSummary = {
@@ -22,6 +23,7 @@ const initialDebtSummary = {
 
 const initialDebts = [
   {
+    id: 1,
     name: "Credit Card - Chase",
     interestRate: 18.99,
     balance: 4250.00,
@@ -31,6 +33,7 @@ const initialDebts = [
     color: "bg-finance-red"
   },
   {
+    id: 2,
     name: "Car Loan",
     interestRate: 4.5,
     balance: 12400.00,
@@ -40,6 +43,7 @@ const initialDebts = [
     color: "bg-finance-blue"
   },
   {
+    id: 3,
     name: "Student Loan",
     interestRate: 5.8,
     balance: 15800.00,
@@ -74,6 +78,7 @@ const DebtTracker = () => {
   const [debtSummary, setDebtSummary] = useState(initialDebtSummary);
   const [debts, setDebts] = useState(initialDebts);
   const [showAddDebt, setShowAddDebt] = useState(false);
+  const [showExtraPayment, setShowExtraPayment] = useState(false);
   const [newDebt, setNewDebt] = useState({
     name: "",
     type: "",
@@ -82,7 +87,14 @@ const DebtTracker = () => {
     minPayment: "",
     limit: ""
   });
+  const [extraPayment, setExtraPayment] = useState({
+    debtId: 1,  // Default to first debt
+    amount: ""
+  });
+  
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedDebtId, setSelectedDebtId] = useState<number | null>(null);
 
   const handleAddDebt = () => {
     if (!newDebt.name || !newDebt.balance || !newDebt.interestRate || !newDebt.minPayment) {
@@ -94,8 +106,41 @@ const DebtTracker = () => {
       return;
     }
 
-    // Add new debt logic would go here
+    const debtToAdd = {
+      ...newDebt,
+      id: debts.length + 1,
+      balance: parseFloat(newDebt.balance),
+      interestRate: parseFloat(newDebt.interestRate),
+      minPayment: parseFloat(newDebt.minPayment),
+      limit: newDebt.limit ? parseFloat(newDebt.limit) : undefined,
+      percentUsed: newDebt.limit ? (parseFloat(newDebt.balance) / parseFloat(newDebt.limit) * 100) : undefined,
+      color: `bg-finance-${["red", "blue", "green", "purple", "yellow", "orange"][debts.length % 6]}`
+    };
+
+    const newDebts = [...debts, debtToAdd];
+    setDebts(newDebts);
+    
+    // Update summary data
+    const newTotalDebt = newDebts.reduce((sum, debt) => sum + debt.balance, 0);
+    const newMonthlyPayment = newDebts.reduce((sum, debt) => sum + debt.minPayment, 0);
+    const avgInterest = newDebts.reduce((sum, debt) => sum + (debt.balance * debt.interestRate), 0) / newTotalDebt;
+    
+    setDebtSummary({
+      ...debtSummary,
+      totalDebt: newTotalDebt,
+      monthlyPayment: newMonthlyPayment,
+      avgInterestRate: parseFloat(avgInterest.toFixed(1))
+    });
+    
     setShowAddDebt(false);
+    setNewDebt({
+      name: "",
+      type: "",
+      balance: "",
+      interestRate: "",
+      minPayment: "",
+      limit: ""
+    });
     
     toast({
       title: "Debt added",
@@ -111,11 +156,121 @@ const DebtTracker = () => {
     }));
   };
 
+  const handleExtraPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setExtraPayment(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleExtraPaymentDebtChange = (value: string) => {
+    setExtraPayment(prev => ({
+      ...prev,
+      debtId: parseInt(value)
+    }));
+  };
+
   const handleSelectChange = (name: string, value: string) => {
     setNewDebt(prev => ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setSelectedDebtId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedDebtId === null) return;
+    
+    const newDebts = debts.filter(debt => debt.id !== selectedDebtId);
+    setDebts(newDebts);
+    setSelectedDebtId(null);
+    
+    // Update summary data
+    if (newDebts.length === 0) {
+      setDebtSummary({
+        totalDebt: 0,
+        monthlyPayment: 0,
+        incomePercentage: 0,
+        avgInterestRate: 0,
+        debtToIncome: 0
+      });
+    } else {
+      const newTotalDebt = newDebts.reduce((sum, debt) => sum + debt.balance, 0);
+      const newMonthlyPayment = newDebts.reduce((sum, debt) => sum + debt.minPayment, 0);
+      const avgInterest = newDebts.reduce((sum, debt) => sum + (debt.balance * debt.interestRate), 0) / newTotalDebt;
+      
+      setDebtSummary({
+        ...debtSummary,
+        totalDebt: newTotalDebt,
+        monthlyPayment: newMonthlyPayment,
+        avgInterestRate: parseFloat(avgInterest.toFixed(1))
+      });
+    }
+    
+    toast({
+      title: "Debt deleted",
+      description: "The debt has been removed from your tracker."
+    });
+  };
+
+  const handleApplyExtraPayment = () => {
+    const paymentAmount = parseFloat(extraPayment.amount);
+    
+    if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid payment amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const debtIndex = debts.findIndex(debt => debt.id === extraPayment.debtId);
+    
+    if (debtIndex === -1) {
+      toast({
+        title: "Error",
+        description: "Debt not found.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const updatedDebts = [...debts];
+    const debt = updatedDebts[debtIndex];
+    
+    // Apply payment to debt balance
+    const newBalance = Math.max(0, debt.balance - paymentAmount);
+    updatedDebts[debtIndex] = {
+      ...debt,
+      balance: newBalance,
+      percentUsed: debt.limit ? (newBalance / debt.limit * 100) : undefined,
+      percentPaid: debt.percentPaid ? Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100)) : undefined
+    };
+    
+    // Update debts and summary
+    setDebts(updatedDebts);
+    const newTotalDebt = updatedDebts.reduce((sum, d) => sum + d.balance, 0);
+    setDebtSummary({
+      ...debtSummary,
+      totalDebt: newTotalDebt
+    });
+    
+    setShowExtraPayment(false);
+    setExtraPayment({
+      debtId: updatedDebts[0]?.id || 1,
+      amount: ""
+    });
+    
+    toast({
+      title: "Payment applied",
+      description: `Extra payment of ${paymentAmount.toFixed(2)} applied to ${debt.name}.`
+    });
   };
 
   return (
@@ -305,13 +460,16 @@ const DebtTracker = () => {
                     <h3 className="font-medium">{debt.name}</h3>
                     <p className="text-sm text-muted-foreground">{debt.interestRate}% APR</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium">
-                      <CurrencyDisplay amount={debt.balance} />
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Min: <CurrencyDisplay amount={debt.minPayment} />/mo
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="font-medium">
+                        <CurrencyDisplay amount={debt.balance} />
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Min: <CurrencyDisplay amount={debt.minPayment} />/mo
+                      </p>
+                    </div>
+                    <DeleteButton onClick={() => handleDeleteClick(debt.id)} />
                   </div>
                 </div>
                 <Progress 
@@ -394,11 +552,68 @@ const DebtTracker = () => {
             </div>
 
             <div className="mt-4">
-              <Button className="w-full">Apply Extra Payment</Button>
+              <Dialog open={showExtraPayment} onOpenChange={setShowExtraPayment}>
+                <DialogTrigger asChild>
+                  <Button className="w-full">Apply Extra Payment</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Apply Extra Payment</DialogTitle>
+                    <DialogDescription>
+                      Make an additional payment toward one of your debts.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="debtId">Select Debt</Label>
+                      <Select 
+                        onValueChange={(value) => handleExtraPaymentDebtChange(value)}
+                        defaultValue={extraPayment.debtId.toString()}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select debt" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {debts.map(debt => (
+                            <SelectItem key={debt.id} value={debt.id.toString()}>
+                              {debt.name} - <CurrencyDisplay amount={debt.balance} />
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">Payment Amount</Label>
+                      <Input
+                        id="amount"
+                        name="amount"
+                        type="number"
+                        placeholder="0.00"
+                        value={extraPayment.amount}
+                        onChange={handleExtraPaymentChange}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowExtraPayment(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleApplyExtraPayment}>Apply Payment</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Debt"
+        description="Are you sure you want to delete this debt? This action cannot be undone."
+      />
     </div>
   );
 };
