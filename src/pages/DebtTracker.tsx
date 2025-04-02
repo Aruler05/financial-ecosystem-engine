@@ -11,7 +11,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
-// Initial mock data
+interface BaseDebt {
+  id: number;
+  name: string;
+  interestRate: number;
+  balance: number;
+  minPayment: number;
+  color: string;
+}
+
+interface CreditCardDebt extends BaseDebt {
+  percentUsed: number;
+  limit: number;
+}
+
+interface LoanDebtWithMonths extends BaseDebt {
+  percentPaid: number;
+  monthsRemaining: number;
+}
+
+interface LoanDebtWithYears extends BaseDebt {
+  percentPaid: number;
+  yearsRemaining: number;
+}
+
+type DebtItem = CreditCardDebt | LoanDebtWithMonths | LoanDebtWithYears;
+
+function isCreditCardDebt(debt: DebtItem): debt is CreditCardDebt {
+  return 'percentUsed' in debt && 'limit' in debt;
+}
+
+function isLoanDebtWithMonths(debt: DebtItem): debt is LoanDebtWithMonths {
+  return 'percentPaid' in debt && 'monthsRemaining' in debt;
+}
+
+function isLoanDebtWithYears(debt: DebtItem): debt is LoanDebtWithYears {
+  return 'percentPaid' in debt && 'yearsRemaining' in debt;
+}
+
 const initialDebtSummary = {
   totalDebt: 32450.00,
   monthlyPayment: 876.00,
@@ -20,7 +57,7 @@ const initialDebtSummary = {
   debtToIncome: 35
 };
 
-const initialDebts = [
+const initialDebts: DebtItem[] = [
   {
     id: 1,
     name: "Credit Card - Chase",
@@ -53,7 +90,6 @@ const initialDebts = [
   }
 ];
 
-// Payment methods
 const paymentMethods = [
   "Avalanche Method",
   "Snowball Method",
@@ -62,7 +98,6 @@ const paymentMethods = [
   "Minimum Payments"
 ];
 
-// Debt types
 const debtTypes = [
   "Credit Card",
   "Personal Loan",
@@ -75,7 +110,7 @@ const debtTypes = [
 
 const DebtTracker = () => {
   const [debtSummary, setDebtSummary] = useState(initialDebtSummary);
-  const [debts, setDebts] = useState(initialDebts);
+  const [debts, setDebts] = useState<DebtItem[]>(initialDebts);
   const [showAddDebt, setShowAddDebt] = useState(false);
   const [showExtraPayment, setShowExtraPayment] = useState(false);
   const [newDebt, setNewDebt] = useState({
@@ -105,21 +140,48 @@ const DebtTracker = () => {
       return;
     }
 
-    const debtToAdd = {
-      ...newDebt,
-      id: debts.length + 1,
-      balance: parseFloat(newDebt.balance),
-      interestRate: parseFloat(newDebt.interestRate),
-      minPayment: parseFloat(newDebt.minPayment),
-      limit: newDebt.limit ? parseFloat(newDebt.limit) : undefined,
-      percentUsed: newDebt.limit ? (parseFloat(newDebt.balance) / parseFloat(newDebt.limit) * 100) : undefined,
-      color: `bg-finance-${["red", "blue", "green", "purple", "yellow", "orange"][debts.length % 6]}`
-    };
+    let debtToAdd: DebtItem;
+    const balance = parseFloat(newDebt.balance);
+    
+    if (newDebt.type === "credit card" && newDebt.limit) {
+      const limit = parseFloat(newDebt.limit);
+      debtToAdd = {
+        id: debts.length + 1,
+        name: newDebt.name,
+        balance: balance,
+        interestRate: parseFloat(newDebt.interestRate),
+        minPayment: parseFloat(newDebt.minPayment),
+        limit: limit,
+        percentUsed: (balance / limit) * 100,
+        color: `bg-finance-${["red", "blue", "green", "purple", "yellow", "orange"][debts.length % 6]}`
+      };
+    } else if (["auto loan", "mortgage"].includes(newDebt.type)) {
+      debtToAdd = {
+        id: debts.length + 1,
+        name: newDebt.name,
+        balance: balance,
+        interestRate: parseFloat(newDebt.interestRate),
+        minPayment: parseFloat(newDebt.minPayment),
+        percentPaid: 10,
+        monthsRemaining: 36,
+        color: `bg-finance-${["red", "blue", "green", "purple", "yellow", "orange"][debts.length % 6]}`
+      };
+    } else {
+      debtToAdd = {
+        id: debts.length + 1,
+        name: newDebt.name,
+        balance: balance,
+        interestRate: parseFloat(newDebt.interestRate),
+        minPayment: parseFloat(newDebt.minPayment),
+        percentPaid: 10,
+        yearsRemaining: 5,
+        color: `bg-finance-${["red", "blue", "green", "purple", "yellow", "orange"][debts.length % 6]}`
+      };
+    }
 
     const newDebts = [...debts, debtToAdd];
     setDebts(newDebts);
     
-    // Update summary data
     const newTotalDebt = newDebts.reduce((sum, debt) => sum + debt.balance, 0);
     const newMonthlyPayment = newDebts.reduce((sum, debt) => sum + debt.minPayment, 0);
     const avgInterest = newDebts.reduce((sum, debt) => sum + (debt.balance * debt.interestRate), 0) / newTotalDebt;
@@ -189,7 +251,6 @@ const DebtTracker = () => {
     setDebts(newDebts);
     setSelectedDebtId(null);
     
-    // Update summary data
     if (newDebts.length === 0) {
       setDebtSummary({
         totalDebt: 0,
@@ -243,33 +304,31 @@ const DebtTracker = () => {
     const updatedDebts = [...debts];
     const debt = updatedDebts[debtIndex];
     
-    // Apply payment to debt balance
-    const newBalance = Math.max(0, debt.balance - paymentAmount);
-    
-    // Create a new debt object with the correct properties based on its type
-    if ('percentUsed' in debt && debt.limit) {
-      // For credit card type debts with a limit
+    if (isCreditCardDebt(debt)) {
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: newBalance,
-        percentUsed: newBalance / debt.limit * 100
+        balance: Math.max(0, debt.balance - paymentAmount),
+        percentUsed: (debt.balance - paymentAmount) / debt.limit * 100
       };
-    } else if ('percentPaid' in debt) {
-      // For loan type debts with percentPaid
+    } else if (isLoanDebtWithMonths(debt)) {
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: newBalance,
+        balance: Math.max(0, debt.balance - paymentAmount),
+        percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
+      };
+    } else if (isLoanDebtWithYears(debt)) {
+      updatedDebts[debtIndex] = {
+        ...debt,
+        balance: Math.max(0, debt.balance - paymentAmount),
         percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
       };
     } else {
-      // Fallback just in case
       updatedDebts[debtIndex] = {
         ...debt,
-        balance: newBalance
-      };
+        balance: Math.max(0, debt.balance - paymentAmount)
+      } as DebtItem;
     }
     
-    // Update debts and summary
     setDebts(updatedDebts);
     const newTotalDebt = updatedDebts.reduce((sum, d) => sum + d.balance, 0);
     setDebtSummary({
@@ -489,21 +548,25 @@ const DebtTracker = () => {
                   </div>
                 </div>
                 <Progress 
-                  value={debt.percentUsed || debt.percentPaid} 
+                  value={isCreditCardDebt(debt) ? debt.percentUsed : debt.percentPaid} 
                   className="h-2 bg-muted" 
                   indicatorClassName={debt.color} 
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  {debt.limit ? (
+                  {isCreditCardDebt(debt) ? (
                     <>
                       <span><CurrencyDisplay amount={debt.balance} /> balance</span>
                       <span><CurrencyDisplay amount={debt.limit} /> limit ({debt.percentUsed}% used)</span>
                     </>
                   ) : (
                     <>
-                      <span>{debt.percentPaid}% paid off</span>
+                      <span>{isLoanDebtWithMonths(debt) || isLoanDebtWithYears(debt) ? 
+                        debt.percentPaid : 0}% paid off</span>
                       <span>
-                        {debt.monthsRemaining ? `${debt.monthsRemaining} months remaining` : `${debt.yearsRemaining} years remaining`}
+                        {isLoanDebtWithMonths(debt) ? 
+                          `${debt.monthsRemaining} months remaining` : 
+                          isLoanDebtWithYears(debt) ? 
+                          `${debt.yearsRemaining} years remaining` : ''}
                       </span>
                     </>
                   )}
