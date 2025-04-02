@@ -308,7 +308,7 @@ const DebtTracker = () => {
       updatedDebts[debtIndex] = {
         ...debt,
         balance: Math.max(0, debt.balance - paymentAmount),
-        percentUsed: (debt.balance - paymentAmount) / debt.limit * 100
+        percentUsed: Math.max(0, ((debt.balance - paymentAmount) / debt.limit) * 100)
       };
     } else if (isLoanDebtWithMonths(debt)) {
       updatedDebts[debtIndex] = {
@@ -322,11 +322,6 @@ const DebtTracker = () => {
         balance: Math.max(0, debt.balance - paymentAmount),
         percentPaid: Math.min(100, debt.percentPaid + ((paymentAmount / debt.balance) * 100))
       };
-    } else {
-      updatedDebts[debtIndex] = {
-        ...debt,
-        balance: Math.max(0, debt.balance - paymentAmount)
-      } as DebtItem;
     }
     
     setDebts(updatedDebts);
