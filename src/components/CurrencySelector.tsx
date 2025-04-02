@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { IndianRupee } from "lucide-react";
+import { BadgeDollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const currencies = [
@@ -26,6 +26,9 @@ const currencies = [
   { symbol: "₱", name: "Philippine Peso" },
   { symbol: "฿", name: "Thai Baht" },
   { symbol: "₫", name: "Vietnamese Dong" },
+  { symbol: "₲", name: "Paraguayan Guarani" },
+  { symbol: "₡", name: "Costa Rican Colón" },
+  { symbol: "₸", name: "Kazakhstani Tenge" },
 ];
 
 export function CurrencySelector() {
@@ -46,7 +49,7 @@ export function CurrencySelector() {
     <div className="rounded-lg p-2 bg-slate-100 dark:bg-slate-800">
       <div className="text-sm font-medium mb-2">Currency</div>
       <div className="flex items-center gap-2">
-        <IndianRupee className="h-4 w-4 text-primary" />
+        <BadgeDollarSign className="h-4 w-4 text-primary" />
         <Select
           value={currencySymbol}
           onValueChange={handleCurrencyChange}

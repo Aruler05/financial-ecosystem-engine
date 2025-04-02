@@ -19,7 +19,7 @@ export function CurrencyDisplay({ amount, className, showSymbol = true }: Curren
   
   return (
     <span className={className}>
-      {showSymbol && <span className="currency-symbol">{currencySymbol}</span>}{formattedAmount}
+      {showSymbol && <span className="currency-symbol mr-0.5">{currencySymbol}</span>}{formattedAmount}
     </span>
   );
 }

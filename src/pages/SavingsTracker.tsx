@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { PiggyBank, Plus } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 
 const SavingsTracker = () => {
   return (
@@ -24,7 +25,9 @@ const SavingsTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$23,540.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={23540.00} />
+              </div>
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-teal/10">
                 <PiggyBank className="h-5 w-5 text-finance-teal" />
               </div>
@@ -39,7 +42,9 @@ const SavingsTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$1,200.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={1200.00} />
+              </div>
               <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
                 28% of income
               </div>
@@ -54,7 +59,9 @@ const SavingsTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">$15,000.00</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={15000.00} />
+              </div>
               <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
                 100% funded
               </div>
@@ -90,16 +97,16 @@ const SavingsTracker = () => {
               <div className="flex justify-between">
                 <div>
                   <h3 className="font-medium">New Car</h3>
-                  <p className="text-sm text-muted-foreground">Target: $20,000</p>
+                  <p className="text-sm text-muted-foreground">Target: <CurrencyDisplay amount={20000} /></p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">$5,200 saved</p>
+                  <p className="font-medium"><CurrencyDisplay amount={5200} /> saved</p>
                   <p className="text-sm text-muted-foreground">26% complete</p>
                 </div>
               </div>
               <Progress value={26} className="h-2 bg-muted" indicatorClassName="bg-finance-blue" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$200/month</span>
+                <span><CurrencyDisplay amount={200} />/month</span>
                 <span>Est. completion: Mar 2025</span>
               </div>
             </div>
@@ -108,16 +115,16 @@ const SavingsTracker = () => {
               <div className="flex justify-between">
                 <div>
                   <h3 className="font-medium">Vacation Fund</h3>
-                  <p className="text-sm text-muted-foreground">Target: $3,500</p>
+                  <p className="text-sm text-muted-foreground">Target: <CurrencyDisplay amount={3500} /></p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">$2,800 saved</p>
+                  <p className="font-medium"><CurrencyDisplay amount={2800} /> saved</p>
                   <p className="text-sm text-muted-foreground">80% complete</p>
                 </div>
               </div>
               <Progress value={80} className="h-2 bg-muted" indicatorClassName="bg-finance-teal" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$350/month</span>
+                <span><CurrencyDisplay amount={350} />/month</span>
                 <span>Est. completion: Aug 2023</span>
               </div>
             </div>
@@ -126,16 +133,16 @@ const SavingsTracker = () => {
               <div className="flex justify-between">
                 <div>
                   <h3 className="font-medium">Home Down Payment</h3>
-                  <p className="text-sm text-muted-foreground">Target: $50,000</p>
+                  <p className="text-sm text-muted-foreground">Target: <CurrencyDisplay amount={50000} /></p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">$15,000 saved</p>
+                  <p className="font-medium"><CurrencyDisplay amount={15000} /> saved</p>
                   <p className="text-sm text-muted-foreground">30% complete</p>
                 </div>
               </div>
               <Progress value={30} className="h-2 bg-muted" indicatorClassName="bg-finance-purple" />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$500/month</span>
+                <span><CurrencyDisplay amount={500} />/month</span>
                 <span>Est. completion: Jun 2025</span>
               </div>
             </div>
@@ -155,7 +162,7 @@ const SavingsTracker = () => {
                   <p className="text-sm text-muted-foreground">High-Yield Savings</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$15,000.00</p>
+                  <p className="text-xl font-bold"><CurrencyDisplay amount={15000.00} /></p>
                   <p className="text-sm text-finance-green">3.5% APY</p>
                 </div>
               </div>
@@ -168,7 +175,7 @@ const SavingsTracker = () => {
                   <p className="text-sm text-muted-foreground">Regular Savings</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$2,800.00</p>
+                  <p className="text-xl font-bold"><CurrencyDisplay amount={2800.00} /></p>
                   <p className="text-sm text-finance-green">1.8% APY</p>
                 </div>
               </div>
@@ -181,7 +188,7 @@ const SavingsTracker = () => {
                   <p className="text-sm text-muted-foreground">Regular Savings</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$5,200.00</p>
+                  <p className="text-xl font-bold"><CurrencyDisplay amount={5200.00} /></p>
                   <p className="text-sm text-finance-green">1.8% APY</p>
                 </div>
               </div>
@@ -194,7 +201,7 @@ const SavingsTracker = () => {
                   <p className="text-sm text-muted-foreground">CD Account (3-year)</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$15,000.00</p>
+                  <p className="text-xl font-bold"><CurrencyDisplay amount={15000.00} /></p>
                   <p className="text-sm text-finance-green">4.2% APY</p>
                 </div>
               </div>
