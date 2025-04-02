@@ -24,7 +24,7 @@ import {
   ChartLegend,
   ChartLegendContent
 } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 
 const expensesData = [
   { name: 'Housing', value: 1200, color: '#DC2626' },
@@ -151,41 +151,41 @@ const Dashboard = () => {
           <CardContent>
             <div className="h-[220px] w-full">
               <ChartContainer className="h-full" config={pieChartConfig}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={expensesData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      innerRadius={45}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                      nameKey="name"
-                    >
-                      {expensesData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip 
-                      content={
-                        <ChartTooltipContent
-                          formatter={(value) => (
-                            <span><CurrencyDisplay amount={value as number} /></span>
-                          )}
-                        />
-                      }
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <ChartLegend>
-                  <ChartLegendContent
-                    verticalAlign="bottom"
-                    layout="horizontal"
+                {/* Wrap PieChart in a single element to fix the 'children' error */}
+                <PieChart>
+                  <Pie
+                    data={expensesData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    innerRadius={45}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    nameKey="name"
+                  >
+                    {expensesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip 
+                    content={
+                      <ChartTooltipContent
+                        formatter={(value) => (
+                          <span><CurrencyDisplay amount={value as number} /></span>
+                        )}
+                      />
+                    }
                   />
-                </ChartLegend>
+                </PieChart>
               </ChartContainer>
+              {/* Move ChartLegend outside ChartContainer as it's not supposed to be a child */}
+              <ChartLegend>
+                <ChartLegendContent
+                  verticalAlign="bottom"
+                  // Removed the layout prop as it doesn't exist on ChartLegendContent
+                />
+              </ChartLegend>
             </div>
             <div className="mt-4 text-xs text-center text-muted-foreground">
               Total Monthly Expenses: <CurrencyDisplay amount={2640.00} className="font-medium" />
