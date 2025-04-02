@@ -1,27 +1,24 @@
+
 import React from "react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface CurrencyDisplayProps {
   amount: number;
-  showSymbol?: boolean;
   className?: string;
 }
 
-export function CurrencyDisplay({ 
-  amount, 
-  showSymbol = true, 
-  className 
-}: CurrencyDisplayProps) {
+export function CurrencyDisplay({ amount, className }: CurrencyDisplayProps) {
   const { currencySymbol } = useCurrency();
   
-  const formattedAmount = new Intl.NumberFormat('en-US', {
+  // Format the number with commas and 2 decimal places
+  const formattedAmount = amount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-
+    maximumFractionDigits: 2
+  });
+  
   return (
     <span className={className}>
-      {showSymbol && currencySymbol}{formattedAmount}
+      <span className="currency-symbol">{currencySymbol}</span>{formattedAmount}
     </span>
   );
 }
