@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 
 interface Loan {
   id: number;
@@ -33,6 +34,21 @@ const LoanTracker = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState<number | null>(null);
   const { toast } = useToast();
+  
+  // States for the refinance dialog
+  const [showRefinance, setShowRefinance] = useState(false);
+  const [refinanceData, setRefinanceData] = useState({
+    loanId: 1,
+    newRate: "",
+    newTerm: ""
+  });
+
+  // States for the extra payment dialog
+  const [showExtraPayment, setShowExtraPayment] = useState(false);
+  const [extraPayment, setExtraPayment] = useState({
+    loanId: 1,
+    amount: ""
+  });
   
   const [newLoan, setNewLoan] = useState({
     name: "",
@@ -115,6 +131,124 @@ const LoanTracker = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleRefinanceInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setRefinanceData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleExtraPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setExtraPayment(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleExtraPaymentSubmit = () => {
+    const paymentAmount = parseFloat(extraPayment.amount);
+    
+    if (!paymentAmount || isNaN(paymentAmount) || paymentAmount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid payment amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const loanIndex = loans.findIndex(loan => loan.id === extraPayment.loanId);
+    
+    if (loanIndex === -1) {
+      toast({
+        title: "Error",
+        description: "Loan not found.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const updatedLoans = [...loans];
+    const loan = updatedLoans[loanIndex];
+    
+    // Apply the extra payment
+    const newBalance = Math.max(0, loan.currentBalance - paymentAmount);
+    const newPercentPaid = (loan.originalAmount - newBalance) / loan.originalAmount * 100;
+    
+    updatedLoans[loanIndex] = {
+      ...loan,
+      currentBalance: newBalance,
+      percentPaid: newPercentPaid
+    };
+    
+    setLoans(updatedLoans);
+    setShowExtraPayment(false);
+    setExtraPayment({
+      loanId: updatedLoans[0]?.id || 1,
+      amount: ""
+    });
+    
+    toast({
+      title: "Payment applied",
+      description: `Extra payment of ${paymentAmount.toFixed(2)} applied to ${loan.name}.`
+    });
+  };
+
+  const handleRefinanceSubmit = () => {
+    const newRate = parseFloat(refinanceData.newRate);
+    const newTerm = parseInt(refinanceData.newTerm);
+    
+    if (!newRate || isNaN(newRate) || newRate <= 0 || !newTerm || isNaN(newTerm) || newTerm <= 0) {
+      toast({
+        title: "Invalid data",
+        description: "Please enter valid interest rate and term.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const loanIndex = loans.findIndex(loan => loan.id === refinanceData.loanId);
+    
+    if (loanIndex === -1) {
+      toast({
+        title: "Error",
+        description: "Loan not found.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const updatedLoans = [...loans];
+    const loan = updatedLoans[loanIndex];
+    
+    // Calculate new monthly payment (simplified calculation)
+    const r = newRate / 100 / 12;
+    const n = newTerm * 12;
+    const newMonthlyPayment = loan.currentBalance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    
+    updatedLoans[loanIndex] = {
+      ...loan,
+      interestRate: newRate,
+      monthlyPayment: Math.round(newMonthlyPayment * 100) / 100,
+      remainingTimeText: `${newTerm} years remaining`
+    };
+    
+    setLoans(updatedLoans);
+    setShowRefinance(false);
+    setRefinanceData({
+      loanId: updatedLoans[0]?.id || 1,
+      newRate: "",
+      newTerm: ""
+    });
+    
+    toast({
+      title: "Refinance applied",
+      description: `${loan.name} has been refinanced at ${newRate}% for ${newTerm} years.`
+    });
   };
 
   const handleAddLoan = () => {
@@ -239,6 +373,28 @@ const LoanTracker = () => {
     
     setSelectedLoanId(id);
     setShowEditLoan(true);
+  };
+
+  const handleRefinanceClick = (id: number) => {
+    const loanToRefinance = loans.find(loan => loan.id === id);
+    if (!loanToRefinance) return;
+    
+    setRefinanceData({
+      loanId: id,
+      newRate: "",
+      newTerm: ""
+    });
+    
+    setShowRefinance(true);
+  };
+
+  const handleExtraPaymentClick = (id: number) => {
+    setExtraPayment({
+      loanId: id,
+      amount: ""
+    });
+    
+    setShowExtraPayment(true);
   };
 
   return (
@@ -395,7 +551,9 @@ const LoanTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">${totalBalance.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={totalBalance} />
+              </div>
               <div className="rounded bg-finance-red/10 px-2 py-1 text-xs font-medium text-finance-red">
                 {activeLoanCount} loans
               </div>
@@ -410,7 +568,9 @@ const LoanTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">${totalMonthlyPayment.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                <CurrencyDisplay amount={totalMonthlyPayment} />
+              </div>
               <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
                 Combined
               </div>
@@ -478,15 +638,21 @@ const LoanTracker = () => {
                   <div className="mb-2 grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Original Amount</p>
-                      <p className="font-medium">${loan.originalAmount.toLocaleString()}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay amount={loan.originalAmount} />
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Balance</p>
-                      <p className="font-medium">${loan.currentBalance.toLocaleString()}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay amount={loan.currentBalance} />
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Monthly Payment</p>
-                      <p className="font-medium">${loan.monthlyPayment.toLocaleString()}</p>
+                      <p className="font-medium">
+                        <CurrencyDisplay amount={loan.monthlyPayment} />
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Next Payment</p>
@@ -506,6 +672,24 @@ const LoanTracker = () => {
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>{loan.remainingTimeText}</span>
                       <span>Started: {loan.startDate}</span>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-1/2"
+                        onClick={() => handleRefinanceClick(loan.id)}
+                      >
+                        Refinance Loan
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-1/2"
+                        onClick={() => handleExtraPaymentClick(loan.id)}
+                      >
+                        Make Extra Payment
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -534,15 +718,21 @@ const LoanTracker = () => {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span>Paid to date:</span>
-                  <span className="font-medium">$32,450.00</span>
+                  <span className="font-medium">
+                    <CurrencyDisplay amount={32450.00} />
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Remaining:</span>
-                  <span className="font-medium">$115,200.00</span>
+                  <span className="font-medium">
+                    <CurrencyDisplay amount={115200.00} />
+                  </span>
                 </div>
                 <div className="flex justify-between border-t pt-1 mt-1">
                   <span>Total interest:</span>
-                  <span className="font-medium">$147,650.00</span>
+                  <span className="font-medium">
+                    <CurrencyDisplay amount={147650.00} />
+                  </span>
                 </div>
               </div>
             </div>
@@ -550,9 +740,15 @@ const LoanTracker = () => {
             <div className="rounded-lg border border-finance-green/20 bg-finance-green/5 p-4">
               <h3 className="mb-2 font-medium">Refinance Opportunity</h3>
               <p className="text-sm text-muted-foreground">
-                Refinancing your mortgage at current rates could save you up to $340/month.
+                Refinancing your mortgage at current rates could save you up to 
+                <CurrencyDisplay amount={340.00} className="ml-1 font-semibold" />/month.
               </p>
-              <Button variant="outline" size="sm" className="mt-3 w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3 w-full"
+                onClick={() => handleRefinanceClick(1)} // Mortgage loan ID
+              >
                 Explore Options
               </Button>
             </div>
@@ -560,7 +756,7 @@ const LoanTracker = () => {
             <div className="rounded-lg border border-finance-purple/20 bg-finance-purple/5 p-4">
               <h3 className="mb-2 font-medium">Extra Payment Impact</h3>
               <p className="text-sm text-muted-foreground mb-2">
-                Adding $200/month to your mortgage payment:
+                Adding <CurrencyDisplay amount={200.00} showSymbol={true} className="font-semibold" />/month to your mortgage payment:
               </p>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
@@ -569,10 +765,17 @@ const LoanTracker = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Interest saved:</span>
-                  <span className="font-medium">$43,200.00</span>
+                  <span className="font-medium">
+                    <CurrencyDisplay amount={43200.00} />
+                  </span>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="mt-3 w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3 w-full"
+                onClick={() => handleExtraPaymentClick(1)} // Mortgage loan ID
+              >
                 Apply Extra Payment
               </Button>
             </div>
@@ -694,6 +897,81 @@ const LoanTracker = () => {
               Cancel
             </Button>
             <Button onClick={handleEditLoan}>Update Loan</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refinance Dialog */}
+      <Dialog open={showRefinance} onOpenChange={setShowRefinance}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Refinance Loan</DialogTitle>
+            <DialogDescription>
+              Enter new loan terms below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="newRate">New Interest Rate (%)</Label>
+              <Input
+                id="newRate"
+                name="newRate"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={refinanceData.newRate}
+                onChange={handleRefinanceInputChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="newTerm">New Loan Term (Years)</Label>
+              <Input
+                id="newTerm"
+                name="newTerm"
+                type="number"
+                placeholder="15"
+                value={refinanceData.newTerm}
+                onChange={handleRefinanceInputChange}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRefinance(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleRefinanceSubmit}>Apply Refinance</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Extra Payment Dialog */}
+      <Dialog open={showExtraPayment} onOpenChange={setShowExtraPayment}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Make Extra Payment</DialogTitle>
+            <DialogDescription>
+              Apply an additional payment to your loan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount">Payment Amount</Label>
+              <Input
+                id="amount"
+                name="amount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={extraPayment.amount}
+                onChange={handleExtraPaymentChange}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExtraPayment(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleExtraPaymentSubmit}>Apply Payment</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
