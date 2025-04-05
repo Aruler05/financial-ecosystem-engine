@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { saveData, loadData, STORAGE_KEYS } from "@/utils/storageService";
 
 // Income frequency options
 const frequencies = [
@@ -85,6 +86,16 @@ const IncomeTracker = () => {
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedIncomeId, setSelectedIncomeId] = useState<number | null>(null);
+  
+  useEffect(() => {
+    const loadedIncomes = loadData(STORAGE_KEYS.INCOME, mockIncomes);
+    setIncomes(loadedIncomes);
+    console.log('Loaded income data from storage');
+  }, []);
+  
+  useEffect(() => {
+    saveData(STORAGE_KEYS.INCOME, incomes);
+  }, [incomes]);
 
   const handleAddIncome = () => {
     if (!newIncome.source || !newIncome.amount || !newIncome.type || !newIncome.frequency) {
@@ -152,7 +163,6 @@ const IncomeTracker = () => {
     });
   };
 
-  // Calculate total income
   const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
   const primaryIncome = incomes.find(income => income.type === "Salary")?.amount || 0;
   const otherIncome = totalIncome - primaryIncome;

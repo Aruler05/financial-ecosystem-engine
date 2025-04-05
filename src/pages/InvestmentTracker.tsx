@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp } from "lucide-react";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { saveData, loadData, STORAGE_KEYS } from "@/utils/storageService";
 
 const investmentTypes = [
   "Stocks",
@@ -102,6 +103,16 @@ const InvestmentTracker = () => {
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedInvestmentId, setSelectedInvestmentId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadedInvestments = loadData(STORAGE_KEYS.INVESTMENTS, mockInvestments);
+    setInvestments(loadedInvestments);
+    console.log('Loaded investment data from storage');
+  }, []);
+
+  useEffect(() => {
+    saveData(STORAGE_KEYS.INVESTMENTS, investments);
+  }, [investments]);
 
   const handleAddInvestment = () => {
     if (!newInvestment.name || !newInvestment.symbol || !newInvestment.type || !newInvestment.quantity) {

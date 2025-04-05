@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { saveData, loadData, STORAGE_KEYS } from "@/utils/storageService";
 
 const categories = [
   "Food & Dining",
@@ -100,6 +101,16 @@ const ExpenseTracker = () => {
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadedExpenses = loadData(STORAGE_KEYS.EXPENSES, mockExpenses);
+    setExpenses(loadedExpenses);
+    console.log('Loaded expense data from storage');
+  }, []);
+
+  useEffect(() => {
+    saveData(STORAGE_KEYS.EXPENSES, expenses);
+  }, [expenses]);
 
   const handleAddExpense = () => {
     if (!newExpense.merchant || !newExpense.amount || !newExpense.category || !newExpense.paymentMethod) {

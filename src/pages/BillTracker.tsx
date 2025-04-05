@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BellRing, Plus } from "lucide-react";
@@ -9,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { saveData, loadData, STORAGE_KEYS } from "@/utils/storageService";
 
+// Initial mock data
 const initialSummary = {
   dueThisWeek: 485.64,
   dueNextWeek: 340.25,
@@ -85,6 +88,34 @@ const BillTracker = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedBillId, setSelectedBillId] = useState<number | null>(null);
   const [selectedBillType, setSelectedBillType] = useState<'upcoming' | 'recurring' | null>(null);
+  
+  // Load data from storage when component mounts
+  useEffect(() => {
+    const loadedUpcomingBills = loadData(STORAGE_KEYS.BILLS_UPCOMING, initialUpcomingBills);
+    const loadedRecurringBills = loadData(STORAGE_KEYS.BILLS_RECURRING, initialRecurringBills);
+    const loadedSummary = loadData(STORAGE_KEYS.BILLS_SUMMARY, initialSummary);
+    
+    setUpcomingBills(loadedUpcomingBills);
+    setRecurringBills(loadedRecurringBills);
+    setSummary(loadedSummary);
+    
+    console.log('Loaded bill data from storage');
+  }, []);
+  
+  // Save upcoming bills to storage whenever they change
+  useEffect(() => {
+    saveData(STORAGE_KEYS.BILLS_UPCOMING, upcomingBills);
+  }, [upcomingBills]);
+  
+  // Save recurring bills to storage whenever they change
+  useEffect(() => {
+    saveData(STORAGE_KEYS.BILLS_RECURRING, recurringBills);
+  }, [recurringBills]);
+  
+  // Save summary to storage whenever it changes
+  useEffect(() => {
+    saveData(STORAGE_KEYS.BILLS_SUMMARY, summary);
+  }, [summary]);
 
   const handleAddBill = () => {
     if (!newBill.name || !newBill.amount || !newBill.dueDate) {
