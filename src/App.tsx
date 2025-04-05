@@ -14,9 +14,49 @@ import ReportsAnalytics from "@/pages/ReportsAnalytics";
 import NotFound from "@/pages/NotFound";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "@/components/ui/toaster";
+import { useEffect } from "react";
+import { STORAGE_KEYS, loadData, saveData } from "@/utils/storageService";
 import "./App.css";
 
+// App settings type
+type AppSettings = {
+  darkMode: boolean;
+  defaultCurrency: string;
+  lastOpenedPage: string;
+};
+
+// Default app settings
+const defaultSettings: AppSettings = {
+  darkMode: false,
+  defaultCurrency: "USD",
+  lastOpenedPage: "/"
+};
+
 function App() {
+  // Load app settings on mount
+  useEffect(() => {
+    // Load app settings from storage
+    const settings = loadData(STORAGE_KEYS.SETTINGS, defaultSettings);
+    console.log("App settings loaded", settings);
+    
+    // Save current page on navigation
+    const saveCurrentPage = () => {
+      const settings = loadData(STORAGE_KEYS.SETTINGS, defaultSettings);
+      const currentPath = window.location.pathname;
+      saveData(STORAGE_KEYS.SETTINGS, {
+        ...settings,
+        lastOpenedPage: currentPath
+      });
+    };
+    
+    // Add navigation event listeners
+    window.addEventListener("beforeunload", saveCurrentPage);
+    
+    return () => {
+      window.removeEventListener("beforeunload", saveCurrentPage);
+    };
+  }, []);
+
   return (
     <Router>
       <CurrencyProvider>

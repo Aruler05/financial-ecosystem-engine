@@ -12,6 +12,12 @@ export const STORAGE_KEYS = {
   EXPENSES: 'finance_app_expenses',
   INCOME: 'finance_app_income',
   INVESTMENTS: 'finance_app_investments',
+  BUDGET: 'finance_app_budget',
+  SAVINGS: 'finance_app_savings',
+  DEBT: 'finance_app_debt',
+  LOANS: 'finance_app_loans',
+  SETTINGS: 'finance_app_settings',
+  USER_PROFILE: 'finance_app_user_profile'
 };
 
 /**
@@ -72,5 +78,50 @@ export const clearAllData = (): void => {
     console.log('All app data cleared');
   } catch (error) {
     console.error('Error clearing all app data', error);
+  }
+};
+
+/**
+ * Export all app data as JSON file
+ * @returns JSON string of all app data
+ */
+export const exportAllData = (): string => {
+  try {
+    const exportData: Record<string, any> = {};
+    
+    Object.entries(STORAGE_KEYS).forEach(([category, key]) => {
+      const data = localStorage.getItem(key);
+      if (data) {
+        exportData[category] = JSON.parse(data);
+      }
+    });
+    
+    return JSON.stringify(exportData, null, 2);
+  } catch (error) {
+    console.error('Error exporting app data', error);
+    return JSON.stringify({ error: 'Failed to export data' });
+  }
+};
+
+/**
+ * Import data from JSON
+ * @param jsonData JSON string to import
+ * @returns Success status
+ */
+export const importData = (jsonData: string): boolean => {
+  try {
+    const importedData = JSON.parse(jsonData);
+    
+    Object.entries(importedData).forEach(([category, data]) => {
+      const key = STORAGE_KEYS[category as keyof typeof STORAGE_KEYS];
+      if (key) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Error importing data', error);
+    return false;
   }
 };
