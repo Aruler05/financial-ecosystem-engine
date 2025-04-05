@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
-// Initial mock data
 const initialSummary = {
   dueThisWeek: 485.64,
   dueNextWeek: 340.25,
@@ -63,7 +61,6 @@ const initialRecurringBills = [
   { id: 6, name: "Gym Membership", schedule: "Monthly on 25th", amount: 29.99 }
 ];
 
-// Priority options
 const priorityOptions = [
   { value: "high", label: "High Priority", color: "bg-finance-red/10 text-finance-red" },
   { value: "medium", label: "Medium Priority", color: "bg-finance-orange/10 text-finance-orange" },
@@ -99,18 +96,15 @@ const BillTracker = () => {
       return;
     }
 
-    // Format the due date to calculate "due in X days"
     const dueDate = new Date(newBill.dueDate);
     const today = new Date();
     const diffTime = Math.abs(dueDate.getTime() - today.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const dueIn = `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
     
-    // Get the priority color based on selection
     const selectedPriority = priorityOptions.find(option => option.value === newBill.priority);
     
     if (newBill.recurring === "yes") {
-      // Add to recurring bills
       const newRecurringBill = {
         id: recurringBills.length > 0 ? Math.max(...recurringBills.map(bill => bill.id)) + 1 : 1,
         name: newBill.name,
@@ -123,7 +117,6 @@ const BillTracker = () => {
       };
       setRecurringBills([...recurringBills, newRecurringBill]);
     } else {
-      // Add to upcoming bills
       const newUpcomingBill = {
         id: upcomingBills.length > 0 ? Math.max(...upcomingBills.map(bill => bill.id)) + 1 : 1,
         name: newBill.name,
@@ -135,7 +128,6 @@ const BillTracker = () => {
       setUpcomingBills([...upcomingBills, newUpcomingBill]);
     }
 
-    // Update the summary
     const newAmount = parseFloat(newBill.amount);
     setSummary({
       ...summary,
@@ -189,7 +181,6 @@ const BillTracker = () => {
       const billToDelete = upcomingBills.find(bill => bill.id === selectedBillId);
       
       if (billToDelete) {
-        // Update summary
         setSummary({
           ...summary,
           totalMonthly: summary.totalMonthly - billToDelete.amount,
@@ -207,7 +198,6 @@ const BillTracker = () => {
       const billToDelete = recurringBills.find(bill => bill.id === selectedBillId);
       
       if (billToDelete) {
-        // Update summary
         setSummary({
           ...summary,
           totalMonthly: summary.totalMonthly - billToDelete.amount
@@ -224,21 +214,6 @@ const BillTracker = () => {
       title: "Bill deleted",
       description: "The bill has been successfully removed."
     });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewBill(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setNewBill(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
   return (
