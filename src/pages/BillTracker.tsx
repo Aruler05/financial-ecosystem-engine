@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 
 // Initial mock data
 const initialSummary = {
@@ -20,6 +21,7 @@ const initialSummary = {
 
 const initialUpcomingBills = [
   { 
+    id: 1,
     name: "Electricity Bill", 
     dueIn: "2 days", 
     amount: 85.40, 
@@ -27,6 +29,7 @@ const initialUpcomingBills = [
     priorityColor: "bg-finance-red/10 text-finance-red"
   },
   { 
+    id: 2,
     name: "Internet", 
     dueIn: "5 days", 
     amount: 59.99, 
@@ -34,6 +37,7 @@ const initialUpcomingBills = [
     priorityColor: "bg-finance-orange/10 text-finance-orange"
   },
   { 
+    id: 3,
     name: "Credit Card", 
     dueIn: "7 days", 
     amount: 340.25, 
@@ -41,6 +45,7 @@ const initialUpcomingBills = [
     priorityColor: "bg-finance-orange/10 text-finance-orange"
   },
   { 
+    id: 4,
     name: "Water Bill", 
     dueIn: "12 days", 
     amount: 45.20, 
@@ -50,12 +55,12 @@ const initialUpcomingBills = [
 ];
 
 const initialRecurringBills = [
-  { name: "Rent", schedule: "Monthly on 1st", amount: 1200.00 },
-  { name: "Internet", schedule: "Monthly on 5th", amount: 59.99 },
-  { name: "Electricity", schedule: "Monthly on 15th", amount: 85.40 },
-  { name: "Phone Plan", schedule: "Monthly on 18th", amount: 45.00 },
-  { name: "Streaming Services", schedule: "Monthly on 22nd", amount: 35.97 },
-  { name: "Gym Membership", schedule: "Monthly on 25th", amount: 29.99 }
+  { id: 1, name: "Rent", schedule: "Monthly on 1st", amount: 1200.00 },
+  { id: 2, name: "Internet", schedule: "Monthly on 5th", amount: 59.99 },
+  { id: 3, name: "Electricity", schedule: "Monthly on 15th", amount: 85.40 },
+  { id: 4, name: "Phone Plan", schedule: "Monthly on 18th", amount: 45.00 },
+  { id: 5, name: "Streaming Services", schedule: "Monthly on 22nd", amount: 35.97 },
+  { id: 6, name: "Gym Membership", schedule: "Monthly on 25th", amount: 29.99 }
 ];
 
 // Priority options
@@ -80,6 +85,9 @@ const BillTracker = () => {
     dayOfMonth: "1"
   });
   const { toast } = useToast();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedBillId, setSelectedBillId] = useState<number | null>(null);
+  const [selectedBillType, setSelectedBillType] = useState<'upcoming' | 'recurring' | null>(null);
 
   const handleAddBill = () => {
     if (!newBill.name || !newBill.amount || !newBill.dueDate) {
@@ -91,12 +99,130 @@ const BillTracker = () => {
       return;
     }
 
-    // Add new bill logic would go here
+    // Format the due date to calculate "due in X days"
+    const dueDate = new Date(newBill.dueDate);
+    const today = new Date();
+    const diffTime = Math.abs(dueDate.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const dueIn = `${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+    
+    // Get the priority color based on selection
+    const selectedPriority = priorityOptions.find(option => option.value === newBill.priority);
+    
+    if (newBill.recurring === "yes") {
+      // Add to recurring bills
+      const newRecurringBill = {
+        id: recurringBills.length > 0 ? Math.max(...recurringBills.map(bill => bill.id)) + 1 : 1,
+        name: newBill.name,
+        schedule: `${newBill.frequency.charAt(0).toUpperCase() + newBill.frequency.slice(1)} on ${newBill.dayOfMonth}${
+          newBill.dayOfMonth === '1' ? 'st' : 
+          newBill.dayOfMonth === '2' ? 'nd' : 
+          newBill.dayOfMonth === '3' ? 'rd' : 'th'
+        }`,
+        amount: parseFloat(newBill.amount)
+      };
+      setRecurringBills([...recurringBills, newRecurringBill]);
+    } else {
+      // Add to upcoming bills
+      const newUpcomingBill = {
+        id: upcomingBills.length > 0 ? Math.max(...upcomingBills.map(bill => bill.id)) + 1 : 1,
+        name: newBill.name,
+        dueIn,
+        amount: parseFloat(newBill.amount),
+        priority: selectedPriority ? selectedPriority.label : "Medium Priority",
+        priorityColor: selectedPriority ? selectedPriority.color : "bg-finance-orange/10 text-finance-orange"
+      };
+      setUpcomingBills([...upcomingBills, newUpcomingBill]);
+    }
+
+    // Update the summary
+    const newAmount = parseFloat(newBill.amount);
+    setSummary({
+      ...summary,
+      totalMonthly: summary.totalMonthly + newAmount,
+      dueThisWeek: diffDays <= 7 ? summary.dueThisWeek + newAmount : summary.dueThisWeek,
+      dueNextWeek: diffDays > 7 && diffDays <= 14 ? summary.dueNextWeek + newAmount : summary.dueNextWeek
+    });
+
     setShowAddBill(false);
+    setNewBill({
+      name: "",
+      amount: "",
+      dueDate: new Date().toISOString().split('T')[0],
+      priority: "",
+      recurring: "no",
+      frequency: "monthly",
+      dayOfMonth: "1"
+    });
     
     toast({
       title: "Bill added",
       description: "Your new bill has been successfully added."
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewBill(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setNewBill(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleDeleteClick = (id: number, type: 'upcoming' | 'recurring') => {
+    setSelectedBillId(id);
+    setSelectedBillType(type);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedBillId === null || selectedBillType === null) return;
+    
+    if (selectedBillType === 'upcoming') {
+      const billToDelete = upcomingBills.find(bill => bill.id === selectedBillId);
+      
+      if (billToDelete) {
+        // Update summary
+        setSummary({
+          ...summary,
+          totalMonthly: summary.totalMonthly - billToDelete.amount,
+          dueThisWeek: billToDelete.dueIn.includes("day") && parseInt(billToDelete.dueIn) <= 7 
+            ? summary.dueThisWeek - billToDelete.amount 
+            : summary.dueThisWeek,
+          dueNextWeek: billToDelete.dueIn.includes("day") && parseInt(billToDelete.dueIn) > 7 && parseInt(billToDelete.dueIn) <= 14
+            ? summary.dueNextWeek - billToDelete.amount
+            : summary.dueNextWeek
+        });
+      }
+      
+      setUpcomingBills(upcomingBills.filter(bill => bill.id !== selectedBillId));
+    } else {
+      const billToDelete = recurringBills.find(bill => bill.id === selectedBillId);
+      
+      if (billToDelete) {
+        // Update summary
+        setSummary({
+          ...summary,
+          totalMonthly: summary.totalMonthly - billToDelete.amount
+        });
+      }
+      
+      setRecurringBills(recurringBills.filter(bill => bill.id !== selectedBillId));
+    }
+    
+    setSelectedBillId(null);
+    setSelectedBillType(null);
+    
+    toast({
+      title: "Bill deleted",
+      description: "The bill has been successfully removed."
     });
   };
 
@@ -257,7 +383,11 @@ const BillTracker = () => {
                 <BellRing className="h-5 w-5 text-finance-orange" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">3 upcoming bills</p>
+            <p className="text-xs text-muted-foreground">
+              {upcomingBills.filter(bill => 
+                bill.dueIn.includes("day") && parseInt(bill.dueIn) <= 7
+              ).length} upcoming bills
+            </p>
           </CardContent>
         </Card>
 
@@ -274,7 +404,11 @@ const BillTracker = () => {
                 <BellRing className="h-5 w-5 text-finance-blue" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">2 upcoming bills</p>
+            <p className="text-xs text-muted-foreground">
+              {upcomingBills.filter(bill => 
+                bill.dueIn.includes("day") && parseInt(bill.dueIn) > 7 && parseInt(bill.dueIn) <= 14
+              ).length} upcoming bills
+            </p>
           </CardContent>
         </Card>
 
@@ -291,7 +425,7 @@ const BillTracker = () => {
                 <BellRing className="h-5 w-5 text-finance-purple" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">8 regular bills</p>
+            <p className="text-xs text-muted-foreground">{recurringBills.length} regular bills</p>
           </CardContent>
         </Card>
 
@@ -322,7 +456,7 @@ const BillTracker = () => {
           <CardContent>
             <div className="space-y-4">
               {upcomingBills.map((bill, index) => (
-                <Card key={index} className="border shadow-none">
+                <Card key={bill.id} className="border shadow-none">
                   <CardContent className="p-4">
                     <div className="flex justify-between">
                       <div>
@@ -330,9 +464,12 @@ const BillTracker = () => {
                         <p className="text-sm text-muted-foreground">Due in {bill.dueIn}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">
-                          <CurrencyDisplay amount={bill.amount} />
-                        </p>
+                        <div className="flex items-center justify-end gap-2">
+                          <p className="font-medium">
+                            <CurrencyDisplay amount={bill.amount} />
+                          </p>
+                          <DeleteButton onClick={() => handleDeleteClick(bill.id, 'upcoming')} />
+                        </div>
                         <div className={`rounded ${bill.priorityColor} px-2 py-1 text-xs font-medium`}>
                           {bill.priority}
                         </div>
@@ -352,21 +489,32 @@ const BillTracker = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recurringBills.map((bill, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-2">
+              {recurringBills.map((bill) => (
+                <div key={bill.id} className="flex items-center justify-between border-b pb-2">
                   <div>
                     <h3 className="font-medium">{bill.name}</h3>
                     <p className="text-sm text-muted-foreground">{bill.schedule}</p>
                   </div>
-                  <p className="font-bold">
-                    <CurrencyDisplay amount={bill.amount} />
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold">
+                      <CurrencyDisplay amount={bill.amount} />
+                    </p>
+                    <DeleteButton onClick={() => handleDeleteClick(bill.id, 'recurring')} />
+                  </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        setIsOpen={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Bill"
+        description="Are you sure you want to delete this bill? This action cannot be undone."
+      />
     </div>
   );
 };
