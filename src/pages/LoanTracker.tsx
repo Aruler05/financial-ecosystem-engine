@@ -535,6 +535,20 @@ const LoanTracker = () => {
                   />
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="tenureMonths">Loan Tenure (Months) - Optional</Label>
+                <Input
+                  id="tenureMonths"
+                  name="tenureMonths"
+                  type="number"
+                  placeholder="e.g., 360 for 30 years"
+                  value={newLoan.tenureMonths}
+                  onChange={handleInputChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the total loan term in months (e.g., 360 for 30 years, 240 for 20 years)
+                </p>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowAddLoan(false)}>

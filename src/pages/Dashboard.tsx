@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,16 +91,19 @@ const Dashboard = () => {
             title="Expense Tracker"
             description="Track your daily expenses"
             icon="receipt"
+            path="/expenses"
           />
           <TrackerCard
             title="Income Tracker"
             description="Monitor your income sources"
             icon="piggy-bank"
+            path="/income"
           />
           <TrackerCard
             title="Savings Tracker"
             description="Watch your savings grow"
             icon="trending-up"
+            path="/savings"
           />
         </div>
 
