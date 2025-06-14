@@ -63,29 +63,21 @@ const Dashboard = () => {
             title="Total Balance"
             value={totalBalance}
             description="Current account balance"
-            trend="+2.5%"
-            trendDirection="up"
           />
           <StatCard
             title="Monthly Income"
             value={monthlyIncome}
             description="This month's income"
-            trend="+5.2%"
-            trendDirection="up"
           />
           <StatCard
             title="Monthly Expenses"
             value={monthlyExpenses}
             description="This month's spending"
-            trend="-3.1%"
-            trendDirection="down"
           />
           <StatCard
             title="Net Income"
             value={netIncome}
             description={`${savingsRate.toFixed(1)}% savings rate`}
-            trend="+8.1%"
-            trendDirection="up"
           />
         </div>
 
@@ -94,7 +86,6 @@ const Dashboard = () => {
           <TrackerCard
             title="Expense Tracker"
             description="Track your daily expenses"
-            href="/expenses"
             value={monthlyExpenses}
             trend="This month"
             icon="receipt"
@@ -102,7 +93,6 @@ const Dashboard = () => {
           <TrackerCard
             title="Income Tracker"
             description="Monitor your income sources"
-            href="/income"
             value={monthlyIncome}
             trend="This month"
             icon="piggy-bank"
@@ -110,7 +100,6 @@ const Dashboard = () => {
           <TrackerCard
             title="Savings Tracker"
             description="Watch your savings grow"
-            href="/savings"
             value={totalSavings}
             trend={`${savingsRate.toFixed(1)}% rate`}
             icon="trending-up"
