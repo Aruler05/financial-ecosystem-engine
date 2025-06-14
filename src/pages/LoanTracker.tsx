@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -418,10 +419,11 @@ const LoanTracker = () => {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
+      {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-left">
+        <div>
           <h1 className="text-3xl font-bold tracking-tight">Loan Tracker</h1>
-          <p className="text-muted-foreground">Manage and track your loans in one place.</p>
+          <p className="text-muted-foreground mt-1">Manage and track your loans in one place.</p>
         </div>
         <Dialog open={showAddLoan} onOpenChange={setShowAddLoan}>
           <DialogTrigger asChild>
@@ -560,8 +562,9 @@ const LoanTracker = () => {
         </Dialog>
       </div>
 
+      {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="text-left">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium">Active Loans</CardTitle>
           </CardHeader>
@@ -572,13 +575,13 @@ const LoanTracker = () => {
                 <Wallet className="h-5 w-5 text-finance-gray" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
               {loans.length > 0 ? `${loans.map(loan => loan.name).join(", ")}` : "No active loans"}
             </p>
           </CardContent>
         </Card>
 
-        <Card className="text-left">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium">Total Balance</CardTitle>
           </CardHeader>
@@ -591,11 +594,11 @@ const LoanTracker = () => {
                 {activeLoanCount} loans
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Outstanding principal</p>
+            <p className="text-xs text-muted-foreground mt-1">Outstanding principal</p>
           </CardContent>
         </Card>
 
-        <Card className="text-left">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium">Monthly Payment</CardTitle>
           </CardHeader>
@@ -608,59 +611,64 @@ const LoanTracker = () => {
                 Combined
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Total monthly outflow</p>
+            <p className="text-xs text-muted-foreground mt-1">Total monthly outflow</p>
           </CardContent>
         </Card>
 
-        <Card className="text-left">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-medium">Next Payment</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-left">{nextPaymentDate}</div>
+              <div className="text-2xl font-bold">{nextPaymentDate}</div>
               <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
                 Upcoming
               </div>
             </div>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
               {nextPaymentLoan ? nextPaymentLoan.name : "No payments scheduled"}
             </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
+        {/* Loan Details Section */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-left">Loan Details</CardTitle>
-              <CardDescription className="text-left">Overview of your active loans</CardDescription>
+              <CardTitle>Loan Details</CardTitle>
+              <CardDescription>Overview of your active loans</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {loans.map((loan, index) => (
-                  <div key={index} className="rounded-lg border p-4">
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0 flex-1 text-left">
-                        <h3 className="font-medium text-left leading-tight">{loan.name}</h3>
-                        <p className="text-sm text-muted-foreground text-left mt-1">{loan.lender}</p>
+                {loans.map((loan) => (
+                  <div key={loan.id} className="rounded-lg border p-6">
+                    {/* Loan Header */}
+                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-lg leading-tight mb-2">{loan.name}</h3>
+                        <p className="text-sm text-muted-foreground">{loan.lender}</p>
                       </div>
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <div className="flex flex-wrap gap-2 justify-start sm:justify-end">
-                          <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
+                      <div className="flex flex-col gap-3 sm:items-end">
+                        {/* Loan Tags */}
+                        <div className="flex flex-wrap gap-2">
+                          <div className="rounded-full bg-finance-blue/10 px-3 py-1 text-xs font-medium text-finance-blue">
                             {loan.loanType}
                           </div>
-                          <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
+                          <div className="rounded-full bg-finance-green/10 px-3 py-1 text-xs font-medium text-finance-green">
                             {loan.interestRate}% APR
                           </div>
                           {loan.tenureMonths && (
-                            <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
+                            <div className="rounded-full bg-finance-purple/10 px-3 py-1 text-xs font-medium text-finance-purple">
                               {loan.tenureMonths} months
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-1 justify-start sm:justify-end">
+                        {/* Action Buttons */}
+                        <div className="flex gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -685,47 +693,50 @@ const LoanTracker = () => {
                       </div>
                     </div>
                     
-                    <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                      <div className="text-left">
-                        <p className="text-sm text-muted-foreground">Original Amount</p>
-                        <p className="font-medium">
+                    {/* Loan Financial Details */}
+                    <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Original Amount</p>
+                        <p className="font-semibold text-base">
                           <CurrencyDisplay amount={loan.originalAmount} />
                         </p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-sm text-muted-foreground">Current Balance</p>
-                        <p className="font-medium">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
+                        <p className="font-semibold text-base">
                           <CurrencyDisplay amount={loan.currentBalance} />
                         </p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-sm text-muted-foreground">Monthly Payment</p>
-                        <p className="font-medium">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Monthly Payment</p>
+                        <p className="font-semibold text-base">
                           <CurrencyDisplay amount={loan.monthlyPayment} />
                         </p>
                       </div>
-                      <div className="text-left">
-                        <p className="text-sm text-muted-foreground">Next Payment</p>
-                        <p className="font-medium">{loan.nextPaymentDate}</p>
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Next Payment</p>
+                        <p className="font-semibold text-base">{loan.nextPaymentDate}</p>
                       </div>
                     </div>
                     
-                    <div className="mt-4 space-y-3">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-left">Loan Progress</span>
-                        <span className="text-right">{loan.percentPaid.toFixed(1)}% paid off</span>
+                    {/* Progress Section */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Loan Progress</span>
+                        <span className="text-sm font-semibold text-primary">{loan.percentPaid.toFixed(1)}% paid off</span>
                       </div>
                       <Progress 
                         value={loan.percentPaid} 
-                        className="h-2 bg-muted" 
+                        className="h-3 bg-muted" 
                         indicatorClassName={loan.indicatorClass} 
                       />
-                      <div className="flex justify-between items-start text-xs text-muted-foreground gap-2">
-                        <span className="text-left flex-1">{loan.remainingTimeText}</span>
-                        <span className="text-right flex-shrink-0">Started: {loan.startDate}</span>
+                      <div className="flex justify-between items-start text-xs text-muted-foreground">
+                        <span className="flex-1 leading-relaxed">{loan.remainingTimeText}</span>
+                        <span className="flex-shrink-0 ml-4">Started: {loan.startDate}</span>
                       </div>
                       
-                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                      {/* Action Buttons */}
+                      <div className="pt-2 flex flex-col gap-2 sm:flex-row">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -748,8 +759,15 @@ const LoanTracker = () => {
                 ))}
 
                 {loans.length === 0 && (
-                  <div className="rounded-lg border p-8 text-center">
-                    <p className="text-muted-foreground">No loans added yet. Click "Add Loan" to get started.</p>
+                  <div className="rounded-lg border p-12 text-center">
+                    <div className="max-w-sm mx-auto">
+                      <h3 className="font-semibold text-lg mb-2">No loans added yet</h3>
+                      <p className="text-muted-foreground mb-4">Get started by adding your first loan to track payments and progress.</p>
+                      <Button onClick={() => setShowAddLoan(true)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Your First Loan
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -757,69 +775,80 @@ const LoanTracker = () => {
           </Card>
         </div>
 
+        {/* Insights Section */}
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="text-left">Loan Insights</CardTitle>
-              <CardDescription className="text-left">Analysis of your loan portfolio</CardDescription>
+              <CardTitle>Loan Insights</CardTitle>
+              <CardDescription>Analysis of your loan portfolio</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Interest Breakdown */}
               <div className="rounded-lg border border-finance-blue/20 bg-finance-blue/5 p-4">
-                <h3 className="mb-2 font-medium text-left">Interest Breakdown</h3>
-                <p className="text-sm text-muted-foreground mb-3 text-left">
+                <h3 className="font-semibold text-base mb-3">Interest Breakdown</h3>
+                <p className="text-sm text-muted-foreground mb-4">
                   Total interest paid and remaining
                 </p>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-left">Paid to date:</span>
-                    <span className="font-medium text-right">
+                    <span>Paid to date:</span>
+                    <span className="font-semibold">
                       <CurrencyDisplay amount={32450.00} />
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-left">Remaining:</span>
-                    <span className="font-medium text-right">
+                    <span>Remaining:</span>
+                    <span className="font-semibold">
                       <CurrencyDisplay amount={115200.00} />
                     </span>
                   </div>
-                  <div className="flex justify-between items-center border-t pt-2 mt-2">
-                    <span className="text-left">Total interest:</span>
-                    <span className="font-medium text-right">
+                  <div className="flex justify-between items-center border-t pt-3 mt-3">
+                    <span className="font-medium">Total interest:</span>
+                    <span className="font-bold">
                       <CurrencyDisplay amount={147650.00} />
                     </span>
                   </div>
                 </div>
               </div>
 
+              {/* Refinance Opportunity */}
               <div className="rounded-lg border border-finance-green/20 bg-finance-green/5 p-4">
-                <h3 className="mb-2 font-medium text-left">Refinance Opportunity</h3>
-                <p className="text-sm text-muted-foreground text-left">
+                <h3 className="font-semibold text-base mb-3">Refinance Opportunity</h3>
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                   Refinancing your mortgage at current rates could save you up to{" "}
-                  <CurrencyDisplay amount={340.00} className="font-semibold" />/month.
+                  <span className="font-semibold text-finance-green">
+                    <CurrencyDisplay amount={340.00} />
+                  </span>
+                  /month.
                 </p>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-3 w-full"
-                  onClick={() => handleRefinanceClick(1)} // Mortgage loan ID
+                  className="w-full"
+                  onClick={() => handleRefinanceClick(1)}
                 >
                   Explore Options
                 </Button>
               </div>
 
+              {/* Extra Payment Impact */}
               <div className="rounded-lg border border-finance-purple/20 bg-finance-purple/5 p-4">
-                <h3 className="mb-2 font-medium text-left">Extra Payment Impact</h3>
-                <p className="text-sm text-muted-foreground mb-2 text-left">
-                  Adding <CurrencyDisplay amount={200.00} showSymbol={true} className="font-semibold" />/month to your mortgage payment:
+                <h3 className="font-semibold text-base mb-3">Extra Payment Impact</h3>
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                  Adding{" "}
+                  <span className="font-semibold text-finance-purple">
+                    <CurrencyDisplay amount={200.00} showSymbol={true} />
+                  </span>
+                  /month to your mortgage payment:
                 </p>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
-                    <span className="text-left">Time saved:</span>
-                    <span className="font-medium text-right">4 years 8 months</span>
+                    <span>Time saved:</span>
+                    <span className="font-semibold">4 years 8 months</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-left">Interest saved:</span>
-                    <span className="font-medium text-right">
+                    <span>Interest saved:</span>
+                    <span className="font-semibold">
                       <CurrencyDisplay amount={43200.00} />
                     </span>
                   </div>
@@ -827,8 +856,8 @@ const LoanTracker = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-3 w-full"
-                  onClick={() => handleExtraPaymentClick(1)} // Mortgage loan ID
+                  className="w-full mt-4"
+                  onClick={() => handleExtraPaymentClick(1)}
                 >
                   Apply Extra Payment
                 </Button>
