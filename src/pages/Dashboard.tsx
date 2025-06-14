@@ -112,7 +112,6 @@ const Dashboard = () => {
                     <Progress 
                       value={(expense.value / (expense.value * 1.25)) * 100} 
                       className="h-2 bg-muted" 
-                      indicatorClassName={`bg-[${expense.color}]`}
                     />
                   </div>
                 ))}
