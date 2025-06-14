@@ -1,17 +1,16 @@
-
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Plus, Edit, Calculator } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
-import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import LoanPaymentSpreadsheet from "@/components/loans/LoanPaymentSpreadsheet";
+import { LoanSummaryCards } from "@/components/loans/LoanSummaryCards";
+import { LoanDetailsList } from "@/components/loans/LoanDetailsList";
+import { LoanInsights } from "@/components/loans/LoanInsights";
 
 interface Loan {
   id: number;
@@ -27,7 +26,7 @@ interface Loan {
   percentPaid: number;
   remainingTimeText: string;
   indicatorClass: string;
-  tenureMonths?: number; // Optional tenure in months
+  tenureMonths?: number;
 }
 
 const LoanTracker = () => {
@@ -63,14 +62,14 @@ const LoanTracker = () => {
     nextPaymentDate: "",
     interestRate: "",
     loanType: "fixed",
-    tenureMonths: "" // Add tenure field
+    tenureMonths: ""
   });
 
   const [loans, setLoans] = useState<Loan[]>([
     {
       id: 1,
-      name: "Mortgage Loan for Primary Residence with Extended Description to Test Overflow",
-      lender: "Home First Bank International and Global Partners United",
+      name: "Mortgage Loan for Primary Residence",
+      lender: "Home First Bank",
       originalAmount: 320000,
       currentBalance: 215600,
       monthlyPayment: 985,
@@ -81,12 +80,12 @@ const LoanTracker = () => {
       percentPaid: 32.6,
       remainingTimeText: "21 years 4 months remaining until full payoff",
       indicatorClass: "bg-finance-blue",
-      tenureMonths: 360 // 30 years
+      tenureMonths: 360
     },
     {
       id: 2,
       name: "Auto Loan - Toyota Camry",
-      lender: "Reliable Auto Finance Corp.",
+      lender: "Reliable Auto Finance",
       originalAmount: 20000,
       currentBalance: 12400,
       monthlyPayment: 341,
@@ -97,12 +96,12 @@ const LoanTracker = () => {
       percentPaid: 38,
       remainingTimeText: "32 months remaining",
       indicatorClass: "bg-finance-green",
-      tenureMonths: 60 // 5 years
+      tenureMonths: 60
     },
     {
       id: 3,
       name: "Personal Loan for Home Improvement",
-      lender: "Community Credit Union of Springfield County",
+      lender: "Community Credit Union",
       originalAmount: 10000,
       currentBalance: 7800,
       monthlyPayment: 230,
@@ -113,7 +112,7 @@ const LoanTracker = () => {
       percentPaid: 22,
       remainingTimeText: "36 months remaining, approximately 3 years",
       indicatorClass: "bg-finance-purple",
-      tenureMonths: 48 // 4 years
+      tenureMonths: 48
     }
   ]);
 
@@ -183,7 +182,6 @@ const LoanTracker = () => {
     const updatedLoans = [...loans];
     const loan = updatedLoans[loanIndex];
     
-    // Apply the extra payment
     const newBalance = Math.max(0, loan.currentBalance - paymentAmount);
     const newPercentPaid = (loan.originalAmount - newBalance) / loan.originalAmount * 100;
     
@@ -233,7 +231,6 @@ const LoanTracker = () => {
     const updatedLoans = [...loans];
     const loan = updatedLoans[loanIndex];
     
-    // Calculate new monthly payment (simplified calculation)
     const r = newRate / 100 / 12;
     const n = newTerm * 12;
     const newMonthlyPayment = loan.currentBalance * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
@@ -563,311 +560,33 @@ const LoanTracker = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Active Loans</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{activeLoanCount}</div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-gray/10">
-                <Wallet className="h-5 w-5 text-finance-gray" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-              {loans.length > 0 ? `${loans.map(loan => loan.name).join(", ")}` : "No active loans"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Total Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">
-                <CurrencyDisplay amount={totalBalance} />
-              </div>
-              <div className="rounded bg-finance-red/10 px-2 py-1 text-xs font-medium text-finance-red">
-                {activeLoanCount} loans
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Outstanding principal</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Monthly Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">
-                <CurrencyDisplay amount={totalMonthlyPayment} />
-              </div>
-              <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
-                Combined
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Total monthly outflow</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Next Payment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{nextPaymentDate}</div>
-              <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
-                Upcoming
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-              {nextPaymentLoan ? nextPaymentLoan.name : "No payments scheduled"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <LoanSummaryCards loans={loans} />
 
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Loan Details Section */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Loan Details</CardTitle>
-              <CardDescription>Overview of your active loans</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {loans.map((loan) => (
-                  <div key={loan.id} className="rounded-lg border p-6">
-                    {/* Loan Header */}
-                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-lg leading-tight mb-2">{loan.name}</h3>
-                        <p className="text-sm text-muted-foreground">{loan.lender}</p>
-                      </div>
-                      <div className="flex flex-col gap-3 sm:items-end">
-                        {/* Loan Tags */}
-                        <div className="flex flex-wrap gap-2">
-                          <div className="rounded-full bg-finance-blue/10 px-3 py-1 text-xs font-medium text-finance-blue">
-                            {loan.loanType}
-                          </div>
-                          <div className="rounded-full bg-finance-green/10 px-3 py-1 text-xs font-medium text-finance-green">
-                            {loan.interestRate}% APR
-                          </div>
-                          {loan.tenureMonths && (
-                            <div className="rounded-full bg-finance-purple/10 px-3 py-1 text-xs font-medium text-finance-purple">
-                              {loan.tenureMonths} months
-                            </div>
-                          )}
-                        </div>
-                        {/* Action Buttons */}
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                            onClick={() => handleViewPaymentSchedule(loan)}
-                            title="View payment schedule"
-                          >
-                            <Calculator className="h-4 w-4" />
-                            <span className="sr-only">View Payment Schedule</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                            onClick={() => handleEditClick(loan.id)}
-                          >
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <DeleteButton onClick={() => handleDeleteClick(loan.id)} />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Loan Financial Details */}
-                    <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Original Amount</p>
-                        <p className="font-semibold text-base">
-                          <CurrencyDisplay amount={loan.originalAmount} />
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
-                        <p className="font-semibold text-base">
-                          <CurrencyDisplay amount={loan.currentBalance} />
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Monthly Payment</p>
-                        <p className="font-semibold text-base">
-                          <CurrencyDisplay amount={loan.monthlyPayment} />
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Next Payment</p>
-                        <p className="font-semibold text-base">{loan.nextPaymentDate}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Progress Section */}
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Loan Progress</span>
-                        <span className="text-sm font-semibold text-primary">{loan.percentPaid.toFixed(1)}% paid off</span>
-                      </div>
-                      <Progress 
-                        value={loan.percentPaid} 
-                        className="h-3 bg-muted" 
-                        indicatorClassName={loan.indicatorClass} 
-                      />
-                      <div className="flex justify-between items-start text-xs text-muted-foreground">
-                        <span className="flex-1 leading-relaxed">{loan.remainingTimeText}</span>
-                        <span className="flex-shrink-0 ml-4">Started: {loan.startDate}</span>
-                      </div>
-                      
-                      {/* Action Buttons */}
-                      <div className="pt-2 flex flex-col gap-2 sm:flex-row">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => handleRefinanceClick(loan.id)}
-                        >
-                          Refinance Loan
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => handleExtraPaymentClick(loan.id)}
-                        >
-                          Make Extra Payment
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {loans.length === 0 && (
-                  <div className="rounded-lg border p-12 text-center">
-                    <div className="max-w-sm mx-auto">
-                      <h3 className="font-semibold text-lg mb-2">No loans added yet</h3>
-                      <p className="text-muted-foreground mb-4">Get started by adding your first loan to track payments and progress.</p>
-                      <Button onClick={() => setShowAddLoan(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Your First Loan
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <LoanDetailsList
+            loans={loans}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
+            onRefinanceClick={handleRefinanceClick}
+            onExtraPaymentClick={handleExtraPaymentClick}
+            onViewPaymentSchedule={handleViewPaymentSchedule}
+            onAddLoan={() => setShowAddLoan(true)}
+          />
         </div>
 
         {/* Insights Section */}
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Loan Insights</CardTitle>
-              <CardDescription>Analysis of your loan portfolio</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Interest Breakdown */}
-              <div className="rounded-lg border border-finance-blue/20 bg-finance-blue/5 p-4">
-                <h3 className="font-semibold text-base mb-3">Interest Breakdown</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Total interest paid and remaining
-                </p>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span>Paid to date:</span>
-                    <span className="font-semibold">
-                      <CurrencyDisplay amount={32450.00} />
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Remaining:</span>
-                    <span className="font-semibold">
-                      <CurrencyDisplay amount={115200.00} />
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center border-t pt-3 mt-3">
-                    <span className="font-medium">Total interest:</span>
-                    <span className="font-bold">
-                      <CurrencyDisplay amount={147650.00} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Refinance Opportunity */}
-              <div className="rounded-lg border border-finance-green/20 bg-finance-green/5 p-4">
-                <h3 className="font-semibold text-base mb-3">Refinance Opportunity</h3>
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                  Refinancing your mortgage at current rates could save you up to{" "}
-                  <span className="font-semibold text-finance-green">
-                    <CurrencyDisplay amount={340.00} />
-                  </span>
-                  /month.
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => handleRefinanceClick(1)}
-                >
-                  Explore Options
-                </Button>
-              </div>
-
-              {/* Extra Payment Impact */}
-              <div className="rounded-lg border border-finance-purple/20 bg-finance-purple/5 p-4">
-                <h3 className="font-semibold text-base mb-3">Extra Payment Impact</h3>
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                  Adding{" "}
-                  <span className="font-semibold text-finance-purple">
-                    <CurrencyDisplay amount={200.00} showSymbol={true} />
-                  </span>
-                  /month to your mortgage payment:
-                </p>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span>Time saved:</span>
-                    <span className="font-semibold">4 years 8 months</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Interest saved:</span>
-                    <span className="font-semibold">
-                      <CurrencyDisplay amount={43200.00} />
-                    </span>
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full mt-4"
-                  onClick={() => handleExtraPaymentClick(1)}
-                >
-                  Apply Extra Payment
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <LoanInsights
+            onRefinanceClick={handleRefinanceClick}
+            onExtraPaymentClick={handleExtraPaymentClick}
+          />
         </div>
       </div>
 
-      {/* Payment Spreadsheet Dialog */}
+      {/* Dialogs */}
       <LoanPaymentSpreadsheet
         loan={selectedLoanForSpreadsheet}
         isOpen={showPaymentSpreadsheet}

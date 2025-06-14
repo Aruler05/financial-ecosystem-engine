@@ -8,13 +8,13 @@ import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { Library, ArrowUpCircle, ArrowDownCircle, Activity, Receipt, PiggyBank, TrendingUp as TrendingUpIcon } from "lucide-react";
 
 const Dashboard = () => {
-  const [totalBalance, setTotalBalance] = useState(0);
-  const [monthlyIncome, setMonthlyIncome] = useState(0);
-  const [monthlyExpenses, setMonthlyExpenses] = useState(0);
-  const [totalSavings, setTotalSavings] = useState(0);
+  const [totalBalance, setTotalBalance] = useState(12450.50);
+  const [monthlyIncome, setMonthlyIncome] = useState(5200.00);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(3850.00);
+  const [totalSavings, setTotalSavings] = useState(8950.00);
 
   useEffect(() => {
-    // Load data from localStorage if available
+    // Load data from localStorage if available, otherwise keep defaults
     const savedBalance = localStorage.getItem('totalBalance');
     const savedIncome = localStorage.getItem('monthlyIncome');
     const savedExpenses = localStorage.getItem('monthlyExpenses');
