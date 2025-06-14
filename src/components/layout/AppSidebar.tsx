@@ -96,16 +96,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full" style={{ fontSize: `${fontSize}px` }}>
+      <div className="min-h-screen flex w-full overflow-hidden" style={{ fontSize: `${fontSize}px` }}>
         <AppSidebar />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden min-w-0">
           <div className="flex h-14 items-center border-b px-4 md:hidden">
             <SidebarTrigger>
               <Menu className="h-6 w-6" />
             </SidebarTrigger>
             <h1 className="ml-4 text-xl font-semibold">FinTrack AI</h1>
           </div>
-          <div className="container px-2 sm:px-4 md:p-6 overflow-auto max-h-[calc(100vh-56px)] md:max-h-screen w-full max-w-full">
+          <div className="container px-2 sm:px-4 md:p-6 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-56px)] md:max-h-screen w-full max-w-full">
             {children}
           </div>
         </main>

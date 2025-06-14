@@ -52,13 +52,13 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-6 w-full max-w-full overflow-hidden">
+      <div className="px-2 sm:px-0">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">Your financial overview at a glance.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
         <StatCard
           title="Total Expenses"
           value={<CurrencyDisplay amount={2540.00} />}
@@ -89,8 +89,8 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="col-span-1 lg:col-span-2">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3 w-full">
+        <Card className="lg:col-span-2 w-full">
           <CardHeader>
             <CardTitle>Budget Overview</CardTitle>
             <CardDescription>Your spending by category this month</CardDescription>
@@ -102,10 +102,10 @@ const Dashboard = () => {
                   <div key={index} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: expense.color }}></div>
-                        <span>{expense.name}</span>
+                        <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: expense.color }}></div>
+                        <span className="truncate">{expense.name}</span>
                       </div>
-                      <div className="font-medium">
+                      <div className="font-medium whitespace-nowrap ml-2">
                         <CurrencyDisplay amount={expense.value} /> / <CurrencyDisplay amount={expense.value * 1.25} />
                       </div>
                     </div>
@@ -121,15 +121,15 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Expenses Breakdown</CardTitle>
             <CardDescription>Monthly expenses by category</CardDescription>
           </CardHeader>
           <CardContent>
             <div className={`${isMobile ? "h-[190px]" : "h-[220px]"} w-full`}>
-              <ChartContainer className="h-full" config={pieChartConfig}>
-                <PieChart>
+              <ChartContainer className="h-full w-full" config={pieChartConfig}>
+                <PieChart width="100%" height="100%">
                   <Pie
                     data={expensesData}
                     cx="50%"
@@ -168,7 +168,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-3 w-full">
           <CardHeader>
             <CardTitle>Upcoming Bills</CardTitle>
             <CardDescription>Bills due in the next 7 days</CardDescription>
@@ -177,39 +177,39 @@ const Dashboard = () => {
             <ScrollArea className={`${isMobile ? "h-[120px]" : "max-h-full"} pr-4`}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Electricity Bill</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">Electricity Bill</p>
                     <p className="text-sm text-muted-foreground">Due in 2 days</p>
                   </div>
-                  <p className="font-medium"><CurrencyDisplay amount={85.40} /></p>
+                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={85.40} /></p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Internet</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">Internet</p>
                     <p className="text-sm text-muted-foreground">Due in 5 days</p>
                   </div>
-                  <p className="font-medium"><CurrencyDisplay amount={59.99} /></p>
+                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={59.99} /></p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Credit Card</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">Credit Card</p>
                     <p className="text-sm text-muted-foreground">Due in 7 days</p>
                   </div>
-                  <p className="font-medium"><CurrencyDisplay amount={340.25} /></p>
+                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={340.25} /></p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Phone Bill</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">Phone Bill</p>
                     <p className="text-sm text-muted-foreground">Due in 3 days</p>
                   </div>
-                  <p className="font-medium"><CurrencyDisplay amount={45.99} /></p>
+                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={45.99} /></p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Water Bill</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">Water Bill</p>
                     <p className="text-sm text-muted-foreground">Due in 6 days</p>
                   </div>
-                  <p className="font-medium"><CurrencyDisplay amount={32.50} /></p>
+                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={32.50} /></p>
                 </div>
               </div>
             </ScrollArea>
@@ -217,8 +217,8 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <h2 className="text-2xl font-bold tracking-tight">Financial Trackers</h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="text-2xl font-bold tracking-tight px-2 sm:px-0">Financial Trackers</h2>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
         <TrackerCard
           title="Expense Tracker"
           description="Track and categorize your spending"
