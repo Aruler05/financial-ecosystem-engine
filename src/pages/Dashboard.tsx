@@ -1,286 +1,177 @@
 
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrackerCard } from "@/components/dashboard/TrackerCard";
-import {
-  CreditCard,
-  DollarSign,
-  BarChart3,
-  PiggyBank,
-  Wallet,
-  BellRing,
-  TrendingUp,
-  Calculator,
-  BadgeDollarSign,
-  ArrowDownRight,
-  ArrowUpRight,
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
-import { 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent
-} from "@/components/ui/chart";
-import { PieChart, Pie, Cell } from "recharts";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-const expensesData = [
-  { name: 'Housing', value: 1200, color: '#DC2626' },
-  { name: 'Transportation', value: 350, color: '#1E40AF' },
-  { name: 'Food', value: 420, color: '#059669' },
-  { name: 'Entertainment', value: 180, color: '#8B5CF6' },
-  { name: 'Utilities', value: 240, color: '#EA580C' },
-  { name: 'Healthcare', value: 150, color: '#0D9488' },
-  { name: 'Other', value: 100, color: '#4B5563' },
-];
-
-const pieChartConfig = {
-  housing: { label: 'Housing', color: '#DC2626' },
-  transportation: { label: 'Transportation', color: '#1E40AF' },
-  food: { label: 'Food', color: '#059669' },
-  entertainment: { label: 'Entertainment', color: '#8B5CF6' },
-  utilities: { label: 'Utilities', color: '#EA580C' },
-  healthcare: { label: 'Healthcare', color: '#0D9488' },
-  other: { label: 'Other', color: '#4B5563' },
-};
 
 const Dashboard = () => {
-  const isMobile = useIsMobile();
-  
+  const [totalBalance, setTotalBalance] = useState(0);
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0);
+
+  useEffect(() => {
+    // Load data from localStorage if available
+    const savedBalance = localStorage.getItem('totalBalance');
+    const savedIncome = localStorage.getItem('monthlyIncome');
+    const savedExpenses = localStorage.getItem('monthlyExpenses');
+    const savedSavings = localStorage.getItem('totalSavings');
+
+    if (savedBalance) setTotalBalance(parseFloat(savedBalance));
+    if (savedIncome) setMonthlyIncome(parseFloat(savedIncome));
+    if (savedExpenses) setMonthlyExpenses(parseFloat(savedExpenses));
+    if (savedSavings) setTotalSavings(parseFloat(savedSavings));
+  }, []);
+
+  const netIncome = monthlyIncome - monthlyExpenses;
+  const savingsRate = monthlyIncome > 0 ? ((monthlyIncome - monthlyExpenses) / monthlyIncome * 100) : 0;
+
+  // Sample data for recent transactions
+  const recentTransactions = [
+    { id: 1, description: "Grocery Store", amount: -85.50, category: "Food", date: "Today" },
+    { id: 2, description: "Salary Deposit", amount: 3500.00, category: "Income", date: "Yesterday" },
+    { id: 3, description: "Electric Bill", amount: -120.00, category: "Utilities", date: "2 days ago" },
+    { id: 4, description: "Gas Station", amount: -45.00, category: "Transportation", date: "3 days ago" },
+    { id: 5, description: "Coffee Shop", amount: -8.50, category: "Food", date: "3 days ago" }
+  ];
+
+  // Sample data for expense breakdown
+  const expenseBreakdown = [
+    { category: "Housing", value: 1200, color: "bg-finance-blue" },
+    { category: "Food", value: 450, color: "bg-finance-green" },
+    { category: "Transportation", value: 300, color: "bg-finance-purple" },
+    { category: "Utilities", value: 200, color: "bg-finance-orange" },
+    { category: "Entertainment", value: 150, color: "bg-finance-red" }
+  ];
+
+  const totalExpenseValue = expenseBreakdown.reduce((sum, expense) => sum + expense.value, 0);
+
   return (
-    <div className="space-y-6 w-full max-w-full overflow-hidden">
-      <div className="px-2 sm:px-0">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Your financial overview at a glance.</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="space-y-6 p-4 md:p-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Your financial overview at a glance.</p>
+        </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
-        <StatCard
-          title="Total Expenses"
-          value={<CurrencyDisplay amount={2540.00} />}
-          description="12% from last month"
-          icon={<ArrowDownRight className="h-5 w-5" />}
-          iconClassName="bg-finance-red/10 text-finance-red"
-        />
-        <StatCard
-          title="Total Income"
-          value={<CurrencyDisplay amount={4250.00} />}
-          description="8% from last month"
-          icon={<ArrowUpRight className="h-5 w-5" />}
-          iconClassName="bg-finance-green/10 text-finance-green"
-        />
-        <StatCard
-          title="Savings Rate"
-          value="40.2%"
-          description="5% increase from target"
-          icon={<PiggyBank className="h-5 w-5" />}
-          iconClassName="bg-finance-teal/10 text-finance-teal"
-        />
-        <StatCard
-          title="Net Worth"
-          value={<CurrencyDisplay amount={78350.00} />}
-          description={<><CurrencyDisplay amount={3200.00} /> increase from last month</>}
-          icon={<BarChart3 className="h-5 w-5" />}
-          iconClassName="bg-finance-blue/10 text-finance-blue"
-        />
-      </div>
+        {/* Financial Summary Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Balance"
+            value={totalBalance}
+            description="Current account balance"
+            trend="+2.5%"
+            trendDirection="up"
+          />
+          <StatCard
+            title="Monthly Income"
+            value={monthlyIncome}
+            description="This month's income"
+            trend="+5.2%"
+            trendDirection="up"
+          />
+          <StatCard
+            title="Monthly Expenses"
+            value={monthlyExpenses}
+            description="This month's spending"
+            trend="-3.1%"
+            trendDirection="down"
+          />
+          <StatCard
+            title="Net Income"
+            value={netIncome}
+            description={`${savingsRate.toFixed(1)}% savings rate`}
+            trend="+8.1%"
+            trendDirection="up"
+          />
+        </div>
 
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3 w-full">
-        <Card className="lg:col-span-2 w-full">
-          <CardHeader>
-            <CardTitle>Budget Overview</CardTitle>
-            <CardDescription>Your spending by category this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className={`${isMobile ? "h-[220px]" : "h-[260px]"} pr-4`}>
+        {/* Quick Action Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <TrackerCard
+            title="Expense Tracker"
+            description="Track your daily expenses"
+            href="/expenses"
+            value={monthlyExpenses}
+            trend="This month"
+            icon="receipt"
+          />
+          <TrackerCard
+            title="Income Tracker"
+            description="Monitor your income sources"
+            href="/income"
+            value={monthlyIncome}
+            trend="This month"
+            icon="piggy-bank"
+          />
+          <TrackerCard
+            title="Savings Tracker"
+            description="Watch your savings grow"
+            href="/savings"
+            value={totalSavings}
+            trend={`${savingsRate.toFixed(1)}% rate`}
+            icon="trending-up"
+          />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Recent Transactions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Transactions</CardTitle>
+              <CardDescription>Your latest financial activity</CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-4">
-                {expensesData.map((expense, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
+                {recentTransactions.map((transaction) => (
+                  <div key={transaction.id} className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">{transaction.description}</p>
                       <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: expense.color }}></div>
-                        <span className="truncate">{expense.name}</span>
-                      </div>
-                      <div className="font-medium whitespace-nowrap ml-2">
-                        <CurrencyDisplay amount={expense.value} /> / <CurrencyDisplay amount={expense.value * 1.25} />
+                        <Badge variant="outline" className="text-xs">
+                          {transaction.category}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground">{transaction.date}</p>
                       </div>
                     </div>
+                    <div className={`text-sm font-medium ${transaction.amount > 0 ? 'text-finance-green' : 'text-finance-red'}`}>
+                      <CurrencyDisplay amount={Math.abs(transaction.amount)} showSymbol={transaction.amount > 0} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Expense Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Expense Breakdown</CardTitle>
+              <CardDescription>Where your money goes this month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {expenseBreakdown.map((expense, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">{expense.category}</span>
+                      <span className="text-muted-foreground">
+                        <CurrencyDisplay amount={expense.value} /> ({((expense.value / totalExpenseValue) * 100).toFixed(1)}%)
+                      </span>
+                    </div>
                     <Progress 
-                      value={(expense.value / (expense.value * 1.25)) * 100} 
+                      value={(expense.value / totalExpenseValue) * 100} 
                       className="h-2 bg-muted" 
                     />
                   </div>
                 ))}
               </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Expenses Breakdown</CardTitle>
-            <CardDescription>Monthly expenses by category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className={`${isMobile ? "h-[190px]" : "h-[220px]"} w-full`}>
-              <ChartContainer className="h-full w-full" config={pieChartConfig}>
-                <PieChart width="100%" height="100%">
-                  <Pie
-                    data={expensesData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    innerRadius={isMobile ? 35 : 45}
-                    outerRadius={isMobile ? 65 : 80}
-                    paddingAngle={2}
-                    dataKey="value"
-                    nameKey="name"
-                  >
-                    {expensesData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip 
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => (
-                          <span><CurrencyDisplay amount={value as number} /></span>
-                        )}
-                      />
-                    }
-                  />
-                </PieChart>
-              </ChartContainer>
-              <ChartLegend>
-                <ChartLegendContent
-                  verticalAlign="bottom"
-                />
-              </ChartLegend>
-            </div>
-            <div className="mt-2 text-xs text-center text-muted-foreground">
-              Total Monthly Expenses: <CurrencyDisplay amount={2640.00} className="font-medium" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-3 w-full">
-          <CardHeader>
-            <CardTitle>Upcoming Bills</CardTitle>
-            <CardDescription>Bills due in the next 7 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className={`${isMobile ? "h-[120px]" : "max-h-full"} pr-4`}>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">Electricity Bill</p>
-                    <p className="text-sm text-muted-foreground">Due in 2 days</p>
-                  </div>
-                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={85.40} /></p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">Internet</p>
-                    <p className="text-sm text-muted-foreground">Due in 5 days</p>
-                  </div>
-                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={59.99} /></p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">Credit Card</p>
-                    <p className="text-sm text-muted-foreground">Due in 7 days</p>
-                  </div>
-                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={340.25} /></p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">Phone Bill</p>
-                    <p className="text-sm text-muted-foreground">Due in 3 days</p>
-                  </div>
-                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={45.99} /></p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">Water Bill</p>
-                    <p className="text-sm text-muted-foreground">Due in 6 days</p>
-                  </div>
-                  <p className="font-medium whitespace-nowrap ml-4"><CurrencyDisplay amount={32.50} /></p>
-                </div>
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      <h2 className="text-2xl font-bold tracking-tight px-2 sm:px-0">Financial Trackers</h2>
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full">
-        <TrackerCard
-          title="Expense Tracker"
-          description="Track and categorize your spending"
-          icon={<CreditCard className="h-5 w-5" />}
-          path="/expenses"
-          iconClassName="bg-finance-red/10 text-finance-red"
-        />
-        <TrackerCard
-          title="Income Tracker"
-          description="Monitor your various income sources"
-          icon={<DollarSign className="h-5 w-5" />}
-          path="/income"
-          iconClassName="bg-finance-green/10 text-finance-green"
-        />
-        <TrackerCard
-          title="Budget Planner"
-          description="Set and manage your budget goals"
-          icon={<Calculator className="h-5 w-5" />}
-          path="/budget"
-          iconClassName="bg-finance-purple/10 text-finance-purple"
-        />
-        <TrackerCard
-          title="Bill Reminders"
-          description="Stay on top of your bill payments"
-          icon={<BellRing className="h-5 w-5" />}
-          path="/bills"
-          iconClassName="bg-finance-orange/10 text-finance-orange"
-        />
-        <TrackerCard
-          title="Savings Goals"
-          description="Track progress toward your savings goals"
-          icon={<PiggyBank className="h-5 w-5" />}
-          path="/savings"
-          iconClassName="bg-finance-teal/10 text-finance-teal"
-        />
-        <TrackerCard
-          title="Investment Portfolio"
-          description="Monitor your investment performance"
-          icon={<TrendingUp className="h-5 w-5" />}
-          path="/investments"
-          iconClassName="bg-finance-indigo/10 text-finance-indigo"
-        />
-        <TrackerCard
-          title="Debt Management"
-          description="Track and manage your debt payoff"
-          icon={<BadgeDollarSign className="h-5 w-5" />}
-          path="/debt"
-          iconClassName="bg-finance-yellow/10 text-finance-yellow"
-        />
-        <TrackerCard
-          title="Loan Tracker"
-          description="Monitor loan balances and payments"
-          icon={<Wallet className="h-5 w-5" />}
-          path="/loans"
-          iconClassName="bg-finance-gray/10 text-finance-gray"
-        />
-        <TrackerCard
-          title="Reports & Analytics"
-          description="Gain insights into your financial data"
-          icon={<BarChart3 className="h-5 w-5" />}
-          path="/reports"
-          iconClassName="bg-finance-blue/10 text-finance-blue"
-        />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

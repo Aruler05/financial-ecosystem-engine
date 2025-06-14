@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, Plus, Edit, Trash2 } from "lucide-react";
+import { Wallet, Plus, Edit, Calculator } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import LoanPaymentSpreadsheet from "@/components/loans/LoanPaymentSpreadsheet";
 
 interface Loan {
   id: number;
@@ -33,6 +33,8 @@ const LoanTracker = () => {
   const [showEditLoan, setShowEditLoan] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState<number | null>(null);
+  const [showPaymentSpreadsheet, setShowPaymentSpreadsheet] = useState(false);
+  const [selectedLoanForSpreadsheet, setSelectedLoanForSpreadsheet] = useState<Loan | null>(null);
   const { toast } = useToast();
   
   // States for the refinance dialog
@@ -397,6 +399,11 @@ const LoanTracker = () => {
     setShowExtraPayment(true);
   };
 
+  const handleViewPaymentSchedule = (loan: Loan) => {
+    setSelectedLoanForSpreadsheet(loan);
+    setShowPaymentSpreadsheet(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -626,6 +633,16 @@ const LoanTracker = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                          onClick={() => handleViewPaymentSchedule(loan)}
+                          title="View payment schedule"
+                        >
+                          <Calculator className="h-4 w-4" />
+                          <span className="sr-only">View Payment Schedule</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
                           onClick={() => handleEditClick(loan.id)}
                         >
                           <Edit className="h-4 w-4" />
@@ -677,7 +694,7 @@ const LoanTracker = () => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-1/2"
+                        className="flex-1"
                         onClick={() => handleRefinanceClick(loan.id)}
                       >
                         Refinance Loan
@@ -685,7 +702,7 @@ const LoanTracker = () => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-1/2"
+                        className="flex-1"
                         onClick={() => handleExtraPaymentClick(loan.id)}
                       >
                         Make Extra Payment
@@ -782,6 +799,13 @@ const LoanTracker = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Payment Spreadsheet Dialog */}
+      <LoanPaymentSpreadsheet
+        loan={selectedLoanForSpreadsheet}
+        isOpen={showPaymentSpreadsheet}
+        onClose={() => setShowPaymentSpreadsheet(false)}
+      />
 
       {/* Edit Loan Dialog */}
       <Dialog open={showEditLoan} onOpenChange={setShowEditLoan}>
