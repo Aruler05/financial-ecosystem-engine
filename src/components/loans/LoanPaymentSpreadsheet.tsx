@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Dialog,
@@ -103,128 +104,132 @@ const LoanPaymentSpreadsheet = ({ loan, isOpen, onClose }: LoanPaymentSpreadshee
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="truncate">Payment Schedule - {loan.name}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-full max-w-[95vw] max-h-[95vh] p-4 sm:p-6">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-lg sm:text-xl font-semibold line-clamp-2">
+            Payment Schedule - {loan.name}
+          </DialogTitle>
+          <DialogDescription className="text-sm">
             Detailed amortization schedule showing all payments, principal, and interest breakdown
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 overflow-hidden">
           {/* Loan Summary */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            <Card className="min-w-0">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Loan Details</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Loan Details</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Lender:</span>
-                    <span className="font-medium truncate">{loan.lender}</span>
+              <CardContent className="space-y-1">
+                <div className="space-y-1 text-xs sm:text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Lender:</span>
+                    <span className="font-medium text-right truncate ml-1 max-w-[60%]">{loan.lender}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Rate:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Rate:</span>
                     <span className="font-medium">{loan.interestRate}%</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Type:</span>
-                    <Badge variant="outline" className="text-xs">{loan.loanType}</Badge>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Type:</span>
+                    <Badge variant="outline" className="text-[10px] sm:text-xs h-4 sm:h-5">{loan.loanType}</Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Current Balance</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-lg sm:text-2xl font-bold">
                   <CurrencyDisplay amount={loan.currentBalance} />
                 </div>
-                <p className="text-xs text-muted-foreground">Remaining principal</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Remaining principal</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total Interest</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Interest</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-finance-red">
+                <div className="text-lg sm:text-2xl font-bold text-finance-red">
                   <CurrencyDisplay amount={totalInterest} />
                 </div>
-                <p className="text-xs text-muted-foreground">Over life of loan</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Over life of loan</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="min-w-0">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Payments</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-lg sm:text-2xl font-bold">
                   <CurrencyDisplay amount={totalPayments} />
                 </div>
-                <p className="text-xs text-muted-foreground">{paymentSchedule.length} payments</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{paymentSchedule.length} payments</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Payment Schedule Table */}
-          <Card>
+          <Card className="min-w-0">
             <CardHeader>
-              <CardTitle>Amortization Schedule</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-sm sm:text-base">Amortization Schedule</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 Monthly payment breakdown showing principal and interest allocation
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[400px] w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px]">Payment #</TableHead>
-                      <TableHead className="w-[100px]">Date</TableHead>
-                      <TableHead className="text-right">Beginning Balance</TableHead>
-                      <TableHead className="text-right">Payment Amount</TableHead>
-                      <TableHead className="text-right">Principal</TableHead>
-                      <TableHead className="text-right">Interest</TableHead>
-                      <TableHead className="text-right">Ending Balance</TableHead>
-                      <TableHead className="text-right">Cumulative Interest</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paymentSchedule.map((payment) => (
-                      <TableRow key={payment.paymentNumber}>
-                        <TableCell className="font-medium">
-                          {payment.paymentNumber}
-                        </TableCell>
-                        <TableCell>{payment.paymentDate}</TableCell>
-                        <TableCell className="text-right">
-                          <CurrencyDisplay amount={payment.beginningBalance} />
-                        </TableCell>
-                        <TableCell className="text-right font-medium">
-                          <CurrencyDisplay amount={payment.paymentAmount} />
-                        </TableCell>
-                        <TableCell className="text-right text-finance-green">
-                          <CurrencyDisplay amount={payment.principalPayment} />
-                        </TableCell>
-                        <TableCell className="text-right text-finance-red">
-                          <CurrencyDisplay amount={payment.interestPayment} />
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <CurrencyDisplay amount={payment.endingBalance} />
-                        </TableCell>
-                        <TableCell className="text-right text-muted-foreground">
-                          <CurrencyDisplay amount={payment.cumulativeInterest} />
-                        </TableCell>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[300px] sm:h-[400px] w-full">
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[800px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[60px] sm:w-[80px] text-xs sm:text-sm">Payment #</TableHead>
+                        <TableHead className="w-[80px] sm:w-[100px] text-xs sm:text-sm">Date</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Beginning Balance</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Payment Amount</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Principal</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Interest</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Ending Balance</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Cumulative Interest</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {paymentSchedule.map((payment) => (
+                        <TableRow key={payment.paymentNumber}>
+                          <TableCell className="font-medium text-xs sm:text-sm">
+                            {payment.paymentNumber}
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm">{payment.paymentDate}</TableCell>
+                          <TableCell className="text-right text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.beginningBalance} />
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.paymentAmount} />
+                          </TableCell>
+                          <TableCell className="text-right text-finance-green text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.principalPayment} />
+                          </TableCell>
+                          <TableCell className="text-right text-finance-red text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.interestPayment} />
+                          </TableCell>
+                          <TableCell className="text-right text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.endingBalance} />
+                          </TableCell>
+                          <TableCell className="text-right text-muted-foreground text-xs sm:text-sm">
+                            <CurrencyDisplay amount={payment.cumulativeInterest} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </ScrollArea>
             </CardContent>
           </Card>
