@@ -1,15 +1,16 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PiggyBank, Plus, Pencil } from "lucide-react";
+import { PiggyBank, Plus, Pencil, History } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
 import { DeleteButton, DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SavingsHistory } from "@/components/savings/SavingsHistory";
 
 interface SavingsGoal {
   id: number;
@@ -367,138 +368,154 @@ const SavingsTracker = () => {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Total Savings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">
-                <CurrencyDisplay amount={totalSavings} />
-              </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-teal/10">
-                <PiggyBank className="h-5 w-5 text-finance-teal" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">Across all savings accounts</p>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="overview">Overview & Goals</TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
+            <History className="h-4 w-4" />
+            History & Analysis
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Monthly Contribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">
-                <CurrencyDisplay amount={monthlyContribution} />
-              </div>
-              <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
-                28% of income
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">Automatic transfers</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Emergency Fund</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">
-                <CurrencyDisplay amount={15000.00} />
-              </div>
-              <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
-                100% funded
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">6 months of expenses</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Goal Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold">{savingsGoals.length} Active</div>
-              <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
-                2 Completed
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">Savings goals</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Savings Goals</CardTitle>
-            <CardDescription>Track your progress towards your goals</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {savingsGoals.map((goal) => (
-              <div key={goal.id} className="space-y-2">
-                <div className="flex justify-between">
-                  <div>
-                    <h3 className="font-medium">{goal.name}</h3>
-                    <p className="text-sm text-muted-foreground">Target: <CurrencyDisplay amount={goal.target} /></p>
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-medium">Total Savings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">
+                    <CurrencyDisplay amount={totalSavings} />
                   </div>
-                  <div className="flex items-start gap-2">
-                    <div className="text-right">
-                      <p className="font-medium"><CurrencyDisplay amount={goal.current} /> saved</p>
-                      <p className="text-sm text-muted-foreground">{calculatePercentage(goal.current, goal.target)}% complete</p>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-finance-teal/10">
+                    <PiggyBank className="h-5 w-5 text-finance-teal" />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Across all savings accounts</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-medium">Monthly Contribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">
+                    <CurrencyDisplay amount={monthlyContribution} />
+                  </div>
+                  <div className="rounded bg-finance-blue/10 px-2 py-1 text-xs font-medium text-finance-blue">
+                    28% of income
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Automatic transfers</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-medium">Emergency Fund</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">
+                    <CurrencyDisplay amount={15000.00} />
+                  </div>
+                  <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
+                    100% funded
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">6 months of expenses</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-medium">Goal Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">{savingsGoals.length} Active</div>
+                  <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
+                    2 Completed
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Savings goals</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Savings Goals</CardTitle>
+                <CardDescription>Track your progress towards your goals</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {savingsGoals.map((goal) => (
+                  <div key={goal.id} className="space-y-2">
+                    <div className="flex justify-between">
+                      <div>
+                        <h3 className="font-medium">{goal.name}</h3>
+                        <p className="text-sm text-muted-foreground">Target: <CurrencyDisplay amount={goal.target} /></p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="text-right">
+                          <p className="font-medium"><CurrencyDisplay amount={goal.current} /> saved</p>
+                          <p className="text-sm text-muted-foreground">{calculatePercentage(goal.current, goal.target)}% complete</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditClick(goal)}
+                          className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <DeleteButton onClick={() => handleDeleteClick(goal.id)} />
+                      </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditClick(goal)}
-                      className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                    >
-                      <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
-                    <DeleteButton onClick={() => handleDeleteClick(goal.id)} />
+                    <Progress value={calculatePercentage(goal.current, goal.target)} className="h-2 bg-muted" indicatorClassName={goal.color} />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span><CurrencyDisplay amount={goal.monthlyContribution} />/month</span>
+                      <span>Est. completion: {goal.completionDate}</span>
+                    </div>
                   </div>
-                </div>
-                <Progress value={calculatePercentage(goal.current, goal.target)} className="h-2 bg-muted" indicatorClassName={goal.color} />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span><CurrencyDisplay amount={goal.monthlyContribution} />/month</span>
-                  <span>Est. completion: {goal.completionDate}</span>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+                ))}
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Savings Accounts</CardTitle>
-            <CardDescription>Your linked savings accounts</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {savingsAccounts.map((account) => (
-              <div key={account.id} className="rounded-lg border p-4">
-                <div className="flex justify-between">
-                  <div>
-                    <h3 className="font-medium">{account.name}</h3>
-                    <p className="text-sm text-muted-foreground">{account.type}</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Savings Accounts</CardTitle>
+                <CardDescription>Your linked savings accounts</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {savingsAccounts.map((account) => (
+                  <div key={account.id} className="rounded-lg border p-4">
+                    <div className="flex justify-between">
+                      <div>
+                        <h3 className="font-medium">{account.name}</h3>
+                        <p className="text-sm text-muted-foreground">{account.type}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xl font-bold"><CurrencyDisplay amount={account.balance} /></p>
+                        <p className="text-sm text-finance-green">{account.apy}% APY</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold"><CurrencyDisplay amount={account.balance} /></p>
-                    <p className="text-sm text-finance-green">{account.apy}% APY</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <SavingsHistory activeGoals={savingsGoals} />
+        </TabsContent>
+      </Tabs>
 
       {/* Edit Goal Dialog */}
       <Dialog open={showEditGoal} onOpenChange={setShowEditGoal}>
