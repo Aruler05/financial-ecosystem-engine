@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { TrackerCard } from "@/components/dashboard/TrackerCard";
 import { CurrencyDisplay } from "@/components/CurrencyDisplay";
+import { Library, ArrowUpCircle, ArrowDownCircle, Activity, Receipt, PiggyBank, TrendingUp as TrendingUpIcon } from "lucide-react";
 
 const Dashboard = () => {
   const [totalBalance, setTotalBalance] = useState(0);
@@ -63,21 +63,25 @@ const Dashboard = () => {
             title="Total Balance"
             value={totalBalance}
             description="Current account balance"
+            icon={<Library className="h-4 w-4 text-muted-foreground" />}
           />
           <StatCard
             title="Monthly Income"
             value={monthlyIncome}
             description="This month's income"
+            icon={<ArrowUpCircle className="h-4 w-4 text-muted-foreground" />}
           />
           <StatCard
             title="Monthly Expenses"
             value={monthlyExpenses}
             description="This month's spending"
+            icon={<ArrowDownCircle className="h-4 w-4 text-muted-foreground" />}
           />
           <StatCard
             title="Net Income"
             value={netIncome}
             description={`${savingsRate.toFixed(1)}% savings rate`}
+            icon={<Activity className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
 
@@ -86,23 +90,20 @@ const Dashboard = () => {
           <TrackerCard
             title="Expense Tracker"
             description="Track your daily expenses"
-            value={monthlyExpenses}
             trend="This month"
-            icon="receipt"
+            icon="receipt" // Assuming TrackerCard takes string icon names for its internal icon mapping
           />
           <TrackerCard
             title="Income Tracker"
             description="Monitor your income sources"
-            value={monthlyIncome}
             trend="This month"
-            icon="piggy-bank"
+            icon="piggy-bank" // Assuming TrackerCard takes string icon names
           />
           <TrackerCard
             title="Savings Tracker"
             description="Watch your savings grow"
-            value={totalSavings}
             trend={`${savingsRate.toFixed(1)}% rate`}
-            icon="trending-up"
+            icon="trending-up" // Assuming TrackerCard takes string icon names
           />
         </div>
 

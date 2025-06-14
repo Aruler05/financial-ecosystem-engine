@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Dialog,
@@ -106,7 +105,7 @@ const LoanPaymentSpreadsheet = ({ loan, isOpen, onClose }: LoanPaymentSpreadshee
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Payment Schedule - {loan.name}</DialogTitle>
+          <DialogTitle className="truncate">Payment Schedule - {loan.name}</DialogTitle>
           <DialogDescription>
             Detailed amortization schedule showing all payments, principal, and interest breakdown
           </DialogDescription>
@@ -123,7 +122,7 @@ const LoanPaymentSpreadsheet = ({ loan, isOpen, onClose }: LoanPaymentSpreadshee
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Lender:</span>
-                    <span className="font-medium">{loan.lender}</span>
+                    <span className="font-medium truncate">{loan.lender}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Rate:</span>

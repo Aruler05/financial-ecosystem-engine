@@ -66,8 +66,8 @@ const LoanTracker = () => {
   const [loans, setLoans] = useState<Loan[]>([
     {
       id: 1,
-      name: "Mortgage Loan",
-      lender: "Home First Bank",
+      name: "Mortgage Loan for Primary Residence with Extended Description to Test Overflow",
+      lender: "Home First Bank International and Global Partners United",
       originalAmount: 320000,
       currentBalance: 215600,
       monthlyPayment: 985,
@@ -76,13 +76,13 @@ const LoanTracker = () => {
       loanType: "Fixed Rate",
       startDate: "May 2018",
       percentPaid: 32.6,
-      remainingTimeText: "21 years 4 months remaining",
+      remainingTimeText: "21 years 4 months remaining until full payoff",
       indicatorClass: "bg-finance-blue"
     },
     {
       id: 2,
-      name: "Auto Loan",
-      lender: "Reliable Auto Finance",
+      name: "Auto Loan - Toyota Camry",
+      lender: "Reliable Auto Finance Corp.",
       originalAmount: 20000,
       currentBalance: 12400,
       monthlyPayment: 341,
@@ -96,8 +96,8 @@ const LoanTracker = () => {
     },
     {
       id: 3,
-      name: "Personal Loan",
-      lender: "Community Credit Union",
+      name: "Personal Loan for Home Improvement",
+      lender: "Community Credit Union of Springfield County",
       originalAmount: 10000,
       currentBalance: 7800,
       monthlyPayment: 230,
@@ -106,7 +106,7 @@ const LoanTracker = () => {
       loanType: "Fixed Rate",
       startDate: "Jan 2023",
       percentPaid: 22,
-      remainingTimeText: "36 months remaining",
+      remainingTimeText: "36 months remaining, approximately 3 years",
       indicatorClass: "bg-finance-purple"
     }
   ]);
@@ -546,7 +546,7 @@ const LoanTracker = () => {
                 <Wallet className="h-5 w-5 text-finance-gray" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               {loans.length > 0 ? `${loans.map(loan => loan.name).join(", ")}` : "No active loans"}
             </p>
           </CardContent>
@@ -597,7 +597,7 @@ const LoanTracker = () => {
                 Upcoming
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               {nextPaymentLoan ? nextPaymentLoan.name : "No payments scheduled"}
             </p>
           </CardContent>
@@ -615,9 +615,9 @@ const LoanTracker = () => {
               {loans.map((loan, index) => (
                 <div key={index} className="rounded-lg border p-4">
                   <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-medium">{loan.name}</h3>
-                      <p className="text-sm text-muted-foreground">{loan.lender}</p>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-medium truncate">{loan.name}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{loan.lender}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="flex flex-wrap gap-2">
@@ -687,8 +687,8 @@ const LoanTracker = () => {
                       indicatorClassName={loan.indicatorClass} 
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{loan.remainingTimeText}</span>
-                      <span>Started: {loan.startDate}</span>
+                      <span className="truncate pr-1">{loan.remainingTimeText}</span>
+                      <span className="truncate pl-1">Started: {loan.startDate}</span>
                     </div>
                     <div className="mt-4 flex gap-2">
                       <Button 
@@ -777,12 +777,12 @@ const LoanTracker = () => {
               </p>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span>Time saved:</span>
-                  <span className="font-medium">4 years 8 months</span>
+                  <span className="truncate pr-1">Time saved:</span>
+                  <span className="font-medium truncate pl-1">4 years 8 months</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Interest saved:</span>
-                  <span className="font-medium">
+                  <span className="truncate pr-1">Interest saved:</span>
+                  <span className="font-medium truncate pl-1">
                     <CurrencyDisplay amount={43200.00} />
                   </span>
                 </div>
@@ -879,7 +879,7 @@ const LoanTracker = () => {
                 <Label htmlFor="edit-loanType">Loan Type</Label>
                 <Select 
                   onValueChange={(value) => handleSelectChange("loanType", value)}
-                  defaultValue={newLoan.loanType}
+                  value={newLoan.loanType}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
