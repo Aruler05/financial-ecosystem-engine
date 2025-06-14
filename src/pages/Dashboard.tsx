@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,20 +91,17 @@ const Dashboard = () => {
           <TrackerCard
             title="Expense Tracker"
             description="Track your daily expenses"
-            trend="This month"
-            icon="receipt" // Assuming TrackerCard takes string icon names for its internal icon mapping
+            icon="receipt"
           />
           <TrackerCard
             title="Income Tracker"
             description="Monitor your income sources"
-            trend="This month"
-            icon="piggy-bank" // Assuming TrackerCard takes string icon names
+            icon="piggy-bank"
           />
           <TrackerCard
             title="Savings Tracker"
             description="Watch your savings grow"
-            trend={`${savingsRate.toFixed(1)}% rate`}
-            icon="trending-up" // Assuming TrackerCard takes string icon names
+            icon="trending-up"
           />
         </div>
 

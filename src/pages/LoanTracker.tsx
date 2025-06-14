@@ -26,6 +26,7 @@ interface Loan {
   percentPaid: number;
   remainingTimeText: string;
   indicatorClass: string;
+  tenureMonths?: number; // Optional tenure in months
 }
 
 const LoanTracker = () => {
@@ -60,7 +61,8 @@ const LoanTracker = () => {
     monthlyPayment: "",
     nextPaymentDate: "",
     interestRate: "",
-    loanType: "fixed"
+    loanType: "fixed",
+    tenureMonths: "" // Add tenure field
   });
 
   const [loans, setLoans] = useState<Loan[]>([
@@ -77,7 +79,8 @@ const LoanTracker = () => {
       startDate: "May 2018",
       percentPaid: 32.6,
       remainingTimeText: "21 years 4 months remaining until full payoff",
-      indicatorClass: "bg-finance-blue"
+      indicatorClass: "bg-finance-blue",
+      tenureMonths: 360 // 30 years
     },
     {
       id: 2,
@@ -92,7 +95,8 @@ const LoanTracker = () => {
       startDate: "Oct 2021",
       percentPaid: 38,
       remainingTimeText: "32 months remaining",
-      indicatorClass: "bg-finance-green"
+      indicatorClass: "bg-finance-green",
+      tenureMonths: 60 // 5 years
     },
     {
       id: 3,
@@ -107,7 +111,8 @@ const LoanTracker = () => {
       startDate: "Jan 2023",
       percentPaid: 22,
       remainingTimeText: "36 months remaining, approximately 3 years",
-      indicatorClass: "bg-finance-purple"
+      indicatorClass: "bg-finance-purple",
+      tenureMonths: 48 // 4 years
     }
   ]);
 
@@ -268,6 +273,7 @@ const LoanTracker = () => {
     const originalAmount = parseFloat(newLoan.originalAmount);
     const currentBalance = parseFloat(newLoan.currentBalance);
     const percentPaid = ((originalAmount - currentBalance) / originalAmount) * 100;
+    const tenureMonths = newLoan.tenureMonths ? parseInt(newLoan.tenureMonths) : undefined;
 
     const loanToAdd: Loan = {
       id: Date.now(),
@@ -281,8 +287,9 @@ const LoanTracker = () => {
       loanType: newLoan.loanType === "fixed" ? "Fixed Rate" : "Variable Rate",
       startDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       percentPaid: percentPaid,
-      remainingTimeText: "Term remaining to be calculated",
-      indicatorClass: `bg-finance-${["blue", "green", "purple", "red"][Math.floor(Math.random() * 4)]}`
+      remainingTimeText: tenureMonths ? `${Math.ceil(tenureMonths / 12)} years remaining` : "Term remaining to be calculated",
+      indicatorClass: `bg-finance-${["blue", "green", "purple", "red"][Math.floor(Math.random() * 4)]}`,
+      tenureMonths: tenureMonths
     };
 
     setLoans([...loans, loanToAdd]);
@@ -295,7 +302,8 @@ const LoanTracker = () => {
       monthlyPayment: "",
       nextPaymentDate: "",
       interestRate: "",
-      loanType: "fixed"
+      loanType: "fixed",
+      tenureMonths: ""
     });
     
     toast({
@@ -313,6 +321,7 @@ const LoanTracker = () => {
     const originalAmount = parseFloat(newLoan.originalAmount);
     const currentBalance = parseFloat(newLoan.currentBalance);
     const percentPaid = ((originalAmount - currentBalance) / originalAmount) * 100;
+    const tenureMonths = newLoan.tenureMonths ? parseInt(newLoan.tenureMonths) : undefined;
     
     const updatedLoan: Loan = {
       ...loans[loanIndex],
@@ -324,7 +333,9 @@ const LoanTracker = () => {
       nextPaymentDate: newLoan.nextPaymentDate,
       interestRate: parseFloat(newLoan.interestRate),
       loanType: newLoan.loanType === "fixed" ? "Fixed Rate" : "Variable Rate",
-      percentPaid: percentPaid
+      percentPaid: percentPaid,
+      tenureMonths: tenureMonths,
+      remainingTimeText: tenureMonths ? `${Math.ceil(tenureMonths / 12)} years remaining` : loans[loanIndex].remainingTimeText
     };
     
     const updatedLoans = [...loans];
@@ -370,7 +381,8 @@ const LoanTracker = () => {
       monthlyPayment: loanToEdit.monthlyPayment.toString(),
       nextPaymentDate: loanToEdit.nextPaymentDate,
       interestRate: loanToEdit.interestRate.toString(),
-      loanType: loanToEdit.loanType === "Fixed Rate" ? "fixed" : "variable"
+      loanType: loanToEdit.loanType === "Fixed Rate" ? "fixed" : "variable",
+      tenureMonths: loanToEdit.tenureMonths ? loanToEdit.tenureMonths.toString() : ""
     });
     
     setSelectedLoanId(id);
@@ -627,6 +639,11 @@ const LoanTracker = () => {
                         <div className="rounded bg-finance-green/10 px-2 py-1 text-xs font-medium text-finance-green">
                           {loan.interestRate}% APR
                         </div>
+                        {loan.tenureMonths && (
+                          <div className="rounded bg-finance-purple/10 px-2 py-1 text-xs font-medium text-finance-purple">
+                            {loan.tenureMonths} months
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-1">
                         <Button
@@ -914,6 +931,20 @@ const LoanTracker = () => {
                   onChange={handleInputChange}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-tenureMonths">Loan Tenure (Months) - Optional</Label>
+              <Input
+                id="edit-tenureMonths"
+                name="tenureMonths"
+                type="number"
+                placeholder="e.g., 360 for 30 years"
+                value={newLoan.tenureMonths}
+                onChange={handleInputChange}
+              />
+              <p className="text-xs text-muted-foreground">
+                Enter the total loan term in months (e.g., 360 for 30 years, 240 for 20 years)
+              </p>
             </div>
           </div>
           <DialogFooter>
